@@ -1,5 +1,5 @@
-# import numpy as np
-# import pandas as pd
+import numpy as np
+import pandas as pd
 
 from consumer import Consumer
 from firm import Firm
@@ -37,3 +37,4 @@ class Market:
 n_firms = 5
 n_consumers = 5
 market = Market(n_firms, n_consumers)
+market.say_yeet()
