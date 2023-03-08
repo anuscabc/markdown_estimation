@@ -31,30 +31,33 @@ import matplotlib.pyplot as plt
 # array([ 1.4920333 ,  1.37228132
 
 
-def demand(x1,x2,b):
-    return 100- b*(x1 - x2)
+def demand(x1,x2,x3,b):
+    return 100- b*(x1 - x2- x3)
 
 
 
-def profit(x1,x2,c1,b):
-    return demand(x1,x2,b)*(x1 - c1)
+def profit(x1,x2, x3,c1,b):
+    return demand(x1,x2,x3, b)*(x1 - c1)
 
 
 
-def reaction(x2,c1,b):
-    x1 = optimize.brute(lambda x: -profit(x,x2,c1,b), ((0,1,),)) # brute minimizes the function;
+def reaction(x3, x2,c1,b):
+    x1 = optimize.brute(lambda x: -profit(x,x3, x2,c1,b), ((0,1,),)) # brute minimizes the function;
                                                                  # when we minimize -profits, we maximize profits
     return x1[0]
 
 
 def vector_reaction(x,param): # vector param = (b,c1,c2)
-    return array(x)-array([reaction(x[1],param[1],param[0]),reaction(x[0],param[2],param[0])])
+    return array(x)-array([reaction(x[2], x[1],param[1],param[0]),reaction(x[0], x[2],param[2],param[0]), 
+                           reaction(x[0], x[1],param[3],param[0])])
 
 
-param = [5, 1, 3]
+param = [5, 1, 3, 2]
 # initial guess x0
-x0 = [1, 1]
+x0 = [1, 1, 1]
 
 ans = optimize.fsolve(vector_reaction, x0, args = (param))
 print(ans)
+
+
 
