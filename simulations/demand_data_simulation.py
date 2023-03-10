@@ -87,13 +87,27 @@ columns = ["j", "t", "x_i", "c", "p"]
 df_price_cost = pd.DataFrame(M, index , columns)
 grouped = df_price_cost.groupby("t")
 df_price_cost_sample_group = grouped.sample(frac = 1-prop_jt)
-df_price_cost = df_price_cost_sample_group.reset_index()
-print(df_price_cost)
+print(df_price_cost_sample_group)
+df_price_cost = df_price_cost_sample_group.reset_index(drop = True)
+
+# Getting the outside option for the price_cost_dataframe 
+for i in range(1, T+1, 1): 
+    l = [0, i, 0, 0, 0]
+    df_price_cost.loc[len(df_price_cost.index)] = l
+sorted = df_price_cost.sort_values('t')
+df_price_cost = sorted.reset_index(drop = True)
 
 
-# Putting in the outside option for each of the markets 
-new_row = {'j':0, 'x_i':0, 'c':0, 'p':0}
-df2 = 
+
+# Generating the consumer heterogeneity dataset 
+
+consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
+repeat_consumer = np.tile(consumer_i, (T, 1))
+print(repeat_consumer.shape)
+
+t_consumer_repeat = np.repeat(t, N)
+t_consumer_repeat = np.reshape(t_consumer_repeat, (N*T, 1))
 
 
-
+shocks = np.random.normal(0, 1, size=(N*T, K+1))
+print(shocks)
