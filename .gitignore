@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Dont push big data files
+/data
+/src
+plots/.DS_Store
+.DS_Store

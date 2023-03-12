@@ -28,8 +28,6 @@ class Market:
             beta = 0.5
             self.consumers.append(Consumer(id, alpha, beta))
 
-    def say_yeet(self):
-        print('yeet')
 
     def __str__(self) -> str:
         return f"Market with {self.n_firms} firms and {self.n_consumers} consumers."
