@@ -4,13 +4,10 @@ import matplotlib.pyplot as plt
 import scipy as sp
 # importing the data simulation functions 
 import demand_data_simulation
-import data_clean
 
 
 # Seeting the seed for the simulation 
 np.random.seed(1)
-
-
 
 # Getting the number of products 
 J = 10 
@@ -77,6 +74,12 @@ df = demand_data_simulation.get_continous_quantity(df, mu , omega, sigma, beta)
 
 # 6. Getting the market share 
 df = demand_data_simulation.get_market_shares(df)
-print(df)
 
+
+# 7. Getting the outside good_market share as an additional variable  
+# Making the dataset all clean but also ready to run the monte-carlo simulations 
+
+df = demand_data_simulation.log_market_shares(df, T, N)
+
+print(df)
 

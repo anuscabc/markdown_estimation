@@ -3,7 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy as sp
 
-# This is all the functions for generating the dataset 
+# This is all the functions for generating the dataset without the manipulation for the outside good market share
+
 
 def get_product_market_data(J, K, sd_x):
 # Getting the dataframe with the product market characteristics (X)
@@ -134,3 +135,29 @@ def get_market_shares(df):
     shares = df_final2['q']/df_final2['q_y']
     df_final2['shares'] = shares.tolist() 
     return df_final2
+
+def log_market_shares(df, T, N):
+    array1 = df[['j', 'shares']].to_numpy()
+    index_outside_good_shares = np.where(array1[:,0] == 0)
+    axis = 0
+    outside_good_shares = np.take(array1, index_outside_good_shares, axis)
+    outside_good_shares_reshaped = outside_good_shares.reshape(-1,2)
+    t = np.array(range(1, T+1))
+    markets_t = np.repeat(t, N)
+    markets_t = np.reshape(markets_t, (N*T, 1))
+    to_df = np.delete(np.column_stack((markets_t, outside_good_shares_reshaped)),1, 1)
+    # Make this dataframe with the share of the outside goods that needs to be matched
+    index = range(1, N*T+ 1, 1)
+    columns = ['t', 'share_outside']
+    df_outside_good = pd.DataFrame(to_df, index, columns)   
+    # Need to get rid of all the market shares j = 0 in the dataframe
+    # Merging the two datasets 
+    consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
+    repeat_consumer = np.tile(consumer_i, (T, 1))
+    repeat_consumer = np.array(repeat_consumer, dtype=float)
+    df_outside_good['i'] = repeat_consumer.tolist()
+    df_clean = pd.merge(df, df_outside_good, on =['t', 'i'], how='inner' )
+    # df_clean.drop(df_clean[df_clean['j'] == 0].index, inplace = True)
+    return df_clean
+
+
