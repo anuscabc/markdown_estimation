@@ -46,92 +46,95 @@ sd_c = 0.5
 sd_p = 0.01
 
 # # # # # 
+#
+
+def get_product_market_data(J, K, sd_x):
 # Getting the dataframe with the product market characteristics (X)
-X = sd_x *(np.random.normal(0, 1, size = (J, (K - 1))))
-X_1 = np.ones(shape= (J, 1))
-outside_option = np.zeros(shape = (1, K+1))
-j = np.reshape(np.array(range(1, J+1)), (J, 1))
-X = np.column_stack((X_1, X))
-X = np.column_stack((j, X))
+    X = sd_x *(np.random.normal(0, 1, size = (J, (K - 1))))
+    X_1 = np.ones(shape= (J, 1))
+    outside_option = np.zeros(shape = (1, K+1))
+    j = np.reshape(np.array(range(1, J+1)), (J, 1))
+    X = np.column_stack((X_1, X))
+    X = np.column_stack((j, X))
+    X = np.concatenate((outside_option, X))
+    index = range(1, J+2)
+    # The column names have to be changed depending on the 
+    # number of product characteristics that have to be included 
+    # in the estimation if it doesnt work that is why 
+    columns = ["j", "x_1", "x_2", "x_3"]
+    df_product_car = pd.DataFrame(data = X, index = index, columns= columns )
+    return df_product_car
+    
 
-X = np.concatenate((outside_option, X))
-
-index = range(1, J+2)
-# The column names have to be changed depending on the 
-# number of product characteristics that have to be included 
-# in the estimation if it doesnt work that is why 
-columns = ["j", "x_1", "x_2", "x_3"]
-df_product_car = pd.DataFrame(data = X, index = index, columns= columns )
-
-
-
-# Getting the price marginal cost and the exognous demand shock in a dataframe 
-x_i = np.random.normal(0, 1, size = (J*T, 1))
-c = np.random.lognormal(mean=0.0, sigma= sd_c, size=(J*T, 1))
-p =  c+ np.random.lognormal(price_xi*x_i, sd_p, size=(J*T, 1))
-repeat_j = np.tile(j, (T, 1))
-t = np.array(range(1, T+1))
-repeat_t = np.repeat(t, J)
-repeat_t = np.reshape(repeat_t, (J*T, 1))
-
-M = np.column_stack((repeat_j, repeat_t))
-M = np.column_stack((M, x_i))
-M = np.column_stack((M, c))
-M = np.column_stack((M, p))
-
-# Getting the dataframe
-index = range(1, J*T+ 1)
-# The column names have to be changed depending on the 
-# number of product characteristics that have to be included 
-# in the estimation if it doesnt work that is why 
-columns = ["j", "t", "x_i", "c", "p"]
-
-
-df_price_cost = pd.DataFrame(M, index , columns)
-grouped = df_price_cost.groupby("t")
-# # The fraction kept in the dataset has to be different for each of the given market 
-df_price_cost_sample_group = grouped.sample(frac = 1)
-df_price_cost = df_price_cost_sample_group.reset_index(drop = True)
-# Getting the outside option for the price_cost_dataframe 
-for i in range(1, T+1, 1): 
-    l = [0, i, 0, 0, 0]
-    df_price_cost.loc[len(df_price_cost.index)] = l
-sorted = df_price_cost.sort_values('t')
-df_price_cost = sorted.reset_index(drop = True)
+def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
+    # Getting the price marginal cost and the exognous demand shock in a dataframe 
+    x_i = np.random.normal(0, 1, size = (J*T, 1))
+    c = np.random.lognormal(mean=0.0, sigma= sd_c, size=(J*T, 1))
+    p =  c+ np.random.lognormal(price_xi*x_i, sd_p, size=(J*T, 1))
+    j = np.reshape(np.array(range(1, J+1)), (J, 1))
+    repeat_j = np.tile(j, (T, 1))
+    t = np.array(range(1, T+1))
+    repeat_t = np.repeat(t, J)
+    repeat_t = np.reshape(repeat_t, (J*T, 1))
+    M = np.column_stack((repeat_j, repeat_t))
+    M = np.column_stack((M, x_i))
+    M = np.column_stack((M, c))
+    M = np.column_stack((M, p))
+    # Getting the dataframe
+    index = range(1, J*T+ 1)
+    # The column names have to be changed depending on the 
+    # number of product characteristics that have to be included 
+    # in the estimation if it doesnt work that is why 
+    columns = ["j", "t", "xi", "c", "p"]
+    df_price_cost = pd.DataFrame(M, index , columns)
+    grouped = df_price_cost.groupby("t")
+    # # The fraction kept in the dataset has to be different for each of the given market 
+    df_price_cost_sample_group = grouped.sample(frac = 1)
+    df_price_cost = df_price_cost_sample_group.reset_index(drop = True)
+    # Getting the outside option for the price_cost_dataframe 
+    for i in range(1, T+1, 1): 
+        l = [0, i, 0, 0, 0]
+        df_price_cost.loc[len(df_price_cost.index)] = l
+    sorted = df_price_cost.sort_values('t')
+    df_price_cost = sorted.reset_index(drop = True)
+    return df_price_cost
 
 
 # Generating the consumer heterogeneity dataset 
 
-consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
-repeat_consumer = np.tile(consumer_i, (T, 1))
-
-t_consumer_repeat = np.repeat(t, N)
-t_consumer_repeat = np.reshape(t_consumer_repeat, (N*T, 1))
-
-
-shocks = np.random.normal(0, 1, size=(N*T, K+1))
-
-V = np.column_stack((repeat_consumer, t_consumer_repeat))
-V = np.column_stack((V, shocks))
-
-
-# Getting the dataframe
-index = range(1, N*T+ 1)
-columns = ['i', 't' , 'v_x_1', 'v_x_2', 'v_x_3', 'v_p']
-
-df_shocks_price = pd.DataFrame(V, index, columns)
+def consumer_heterg_data(N, T, K):
+    consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
+    repeat_consumer = np.tile(consumer_i, (T, 1))
+    t_consumer_repeat = np.repeat(t, N)
+    t_consumer_repeat = np.reshape(t_consumer_repeat, (N*T, 1))
+    shocks = np.random.normal(0, 1, size=(N*T, K+1))
+    V = np.column_stack((repeat_consumer, t_consumer_repeat))
+    V = np.column_stack((V, shocks))
+    # Getting the dataframe
+    index = range(1, N*T+ 1)
+    columns = ['i', 't' , 'v_x_1', 'v_x_2', 'v_x_3', 'v_p']
+    df_shocks_price = pd.DataFrame(V, index, columns)
+    return df_shocks_price 
 
 
 
+# Merging all the datasets together for a clean anf nice full dataset 
+def merge_datasets(df_1, df_2, df_3): 
+    merge1 = df_1.merge(df_2, on='t', how = 'left')
+    df_total = merge1.merge(df_3, on = 'j', how ='left')
+    return df_total
 
-# Yes you managed to generate the dataset LETSGOOO  
-merge1 = df_shocks_price.merge(df_price_cost, on='t', how = 'left')
-df_total = merge1.merge(df_product_car, on = 'j', how ='left')
 
-# Getting the extreme value distribution vector 
+# Getting the error in the dataset but idk this maybe should be done 
+# differently depending on how you want to include the 
+def get_error(df):
+    # Getting the extreme value distribution vector 
+    e = np.random.gumbel(0, 1, size = len(df))
+    df['e'] = e.tolist()
+    return df
 
-e = np.random.gumbel(0, 1, size = len(df_total))
-df_total['e'] = e.tolist() 
+
+ 
 
 
 # Next step for tmr is to get the indirect utility utility, quantity and the market shares 
@@ -139,7 +142,6 @@ df_total['e'] = e.tolist()
 
 
 alpha_i = -(np.exp( mu + omega*df_total["v_p"]))
-
 beta_1i = beta[0] + sigma[0]*df_total["v_x_1"]
 beta_2i = beta[1] + sigma[1]*df_total["v_x_2"]
 beta_3i = beta[2] + sigma[2]*df_total["v_x_3"]
@@ -187,3 +189,6 @@ df_final2['shares'] = shares.tolist()
 
 # Getting the data out for running all the simulations 
 df_final2.to_csv("data/data_to_run_estimaton.csv")
+
+# This needs to be rewritten as a function and with a main in
+# order to get everything in order 
