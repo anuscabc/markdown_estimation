@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import scipy as sp
 # importing the data simulation functions 
 import demand_data_simulation
+import data_clean
 
 
 # Seeting the seed for the simulation 
 np.random.seed(1)
+
 
 
 # Getting the number of products 
@@ -61,3 +63,20 @@ sd_p = 0.01
 X = demand_data_simulation.get_product_market_data(J, K, sd_x)
 
 # 2. Get the costs and the prices 
+M = demand_data_simulation.get_price_cost_data(J, T, price_xi, sd_c, sd_p)
+
+# 3. Get the consumer schocks 
+V = demand_data_simulation.consumer_heterg_data(N, T, K)
+
+# 4. Get the full dataset 
+# DO NOT CHANGE ORDER ARGUMENTS OFTHERWISE LEFT MERGE NOT WORK! 
+df = demand_data_simulation.merge_datasets(V, M, X)
+
+# 5. Put the continous quantity in the dataframe 
+df = demand_data_simulation.get_continous_quantity(df, mu , omega, sigma, beta)
+
+# 6. Getting the market share 
+df = demand_data_simulation.get_market_shares(df)
+print(df)
+
+

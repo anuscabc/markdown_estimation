@@ -62,6 +62,7 @@ def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
 def consumer_heterg_data(N, T, K):
     consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
     repeat_consumer = np.tile(consumer_i, (T, 1))
+    t = np.array(range(1, T+1))
     t_consumer_repeat = np.repeat(t, N)
     t_consumer_repeat = np.reshape(t_consumer_repeat, (N*T, 1))
     shocks = np.random.normal(0, 1, size=(N*T, K+1))
@@ -77,7 +78,7 @@ def consumer_heterg_data(N, T, K):
 
 # Merging all the datasets together for a clean anf nice full dataset 
 def merge_datasets(df_1, df_2, df_3): 
-    merge1 = df_1.merge(df_2, on='t', how = 'left')
+    merge1 = df_1.merge(df_2, on= 't', how = 'left')
     df_total = merge1.merge(df_3, on = 'j', how ='left')
     return df_total
 
@@ -93,10 +94,11 @@ def get_error(df):
 
 def get_continous_quantity(df, mu , omega, sigma, beta): 
     alpha_i = -(np.exp( mu + omega*df["v_p"]))
+    # Here we can change which coefficients have random coefficients
     beta_1i = beta[0] + sigma[0]*df["v_x_1"]
     beta_2i = beta[1] + sigma[1]*df["v_x_2"]
     beta_3i = beta[2] + sigma[2]*df["v_x_3"]
-    u_i = beta_1i*df["x_1"] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["x_i"]
+    u_i = beta_1i*df["x_1"] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["xi"]
     df['u'] = u_i.tolist() 
     exp_u_i = np.exp(df['u'])
     df['u_exp'] = exp_u_i.tolist() 
