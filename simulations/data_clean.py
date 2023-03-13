@@ -22,10 +22,10 @@ L = 500
 
 
 
-df = pd.read_csv('data_to_run_estimaton.csv')
+df = pd.read_csv('data/data_to_run_estimaton.csv')
 
 df2 =  df.drop_duplicates(['shares'])
-df3 = df2.drop(labels= ['i', 'v_x_1', 'v_x_2', 'v_x_3', 'v_p', 'e', 'u_exp_x', 'u_exp_y'], axis = 1)
+df3 = df2.drop(labels= ['i', 'v_x_1', 'v_x_2', 'v_x_3', 'v_p', 'u_exp_x', 'u_exp_y'], axis = 1)
 
 # Getting a vector of all the shares of the outside good
 array1 = df3[['j', 'shares']].to_numpy()
@@ -61,6 +61,8 @@ print(df3)
 
 # Merging the two datasets 
 df_clean = df3.merge(df_outside_good, on='t', how = 'left')
+
+#Maybe also need some 
 
 df_clean.to_csv()
 df_clean.to_excel('data/data_clean.xlsx')
