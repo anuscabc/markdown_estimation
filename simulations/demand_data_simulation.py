@@ -45,11 +45,17 @@ def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
     # in the estimation if it doesnt work that is why 
     columns = ["j", "t", "xi", "c", "p"]
     df_price_cost = pd.DataFrame(M, index , columns)
+    # Getting the outside option for the price_cost_dataframe 
+    return df_price_cost
+
+def getting_rid_random_products(df_price_cost):
     grouped = df_price_cost.groupby("t")
     # # The fraction kept in the dataset has to be different for each of the given market 
-    df_price_cost_sample_group = grouped.sample(frac = 1)
+    df_price_cost_sample_group = grouped.sample(frac = 0.4)
     df_price_cost = df_price_cost_sample_group.reset_index(drop = True)
-    # Getting the outside option for the price_cost_dataframe 
+    return df_price_cost
+
+def outside_good_consumer_choice_data(df_price_cost, T):
     for i in range(1, T+1, 1): 
         l = [0, i, 0, 0, 0]
         df_price_cost.loc[len(df_price_cost.index)] = l
@@ -136,7 +142,9 @@ def get_market_shares(df):
     df_final2['shares'] = shares.tolist() 
     return df_final2
 
-def log_market_shares(df, T, N):
+
+# There has to be a better way to write this function, figure it out later
+def market_shares_outside_good(df, T, N):
     array1 = df[['j', 'shares']].to_numpy()
     index_outside_good_shares = np.where(array1[:,0] == 0)
     axis = 0
@@ -147,17 +155,24 @@ def log_market_shares(df, T, N):
     markets_t = np.reshape(markets_t, (N*T, 1))
     to_df = np.delete(np.column_stack((markets_t, outside_good_shares_reshaped)),1, 1)
     # Make this dataframe with the share of the outside goods that needs to be matched
-    index = range(1, N*T+ 1, 1)
-    columns = ['t', 'share_outside']
-    df_outside_good = pd.DataFrame(to_df, index, columns)   
-    # Need to get rid of all the market shares j = 0 in the dataframe
-    # Merging the two datasets 
     consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
     repeat_consumer = np.tile(consumer_i, (T, 1))
-    repeat_consumer = np.array(repeat_consumer, dtype=float)
-    df_outside_good['i'] = repeat_consumer.tolist()
+    to_df_2 = np.column_stack((to_df, repeat_consumer))
+    index = range(1, N*T+ 1, 1)
+    columns = ['t', 'share_outside', 'i']
+    df_outside_good = pd.DataFrame(to_df_2, index, columns)   
+    # Need to get rid of all the market shares j = 0 in the dataframe
+    # Merging the two datasets 
     df_clean = pd.merge(df, df_outside_good, on =['t', 'i'], how='inner' )
-    # df_clean.drop(df_clean[df_clean['j'] == 0].index, inplace = True)
     return df_clean
 
+def clear_outside_good(df): 
+    df.drop(df[df['j'] == 0].index, inplace = True)
+    return df
+
+def get_logarithm_share(df): 
+    df['l_share_good'] = np.log(df['shares'])
+    df['l_share_good_out'] = np.log(df['share_outside'])
+    df['y'] = df['l_share_good'] - df['l_share_good_out']
+    return df
 
