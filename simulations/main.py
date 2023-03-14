@@ -5,6 +5,7 @@ import scipy as sp
 import pyblp
 # importing the data simulation functions 
 import demand_data_simulation
+import clean_data
 
 pyblp.options.digits = 2
 pyblp.options.verbose = False
@@ -48,7 +49,6 @@ omega = 1
 # Setting some anxilliary parameters 
 # set auxiliary parameters
 price_xi = 1 # This is the gamma in the MacFadden paper()
-prop_jt = 0.6
 sd_xi = 0.1
 sd_x = 0.1
 sd_c = 0.5
@@ -89,12 +89,16 @@ df = demand_data_simulation.get_market_shares(df)
 df = demand_data_simulation.market_shares_outside_good(df, T, N)
 
 # 8. Getting rid of the outside good within the dataset 
-# df = demand_data_simulation.clear_outside_good(df)
+df = demand_data_simulation.clear_outside_good(df)
 
 # 9. Get logatirhm variable 
 df = demand_data_simulation.get_logarithm_share(df)
+print(df)
 # Trying estimation with the PyBLP package for 
 # random coefficient logit 
+
+df = clean_data.drop_consumer_shared(df)
+df = clean_data.get_rid_not_needed(df)
 print(df)
 
 

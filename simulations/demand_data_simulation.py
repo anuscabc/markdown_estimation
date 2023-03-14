@@ -51,7 +51,7 @@ def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
 def getting_rid_random_products(df_price_cost):
     grouped = df_price_cost.groupby("t")
     # # The fraction kept in the dataset has to be different for each of the given market 
-    df_price_cost_sample_group = grouped.sample(frac = 0.4)
+    df_price_cost_sample_group = grouped.sample(frac = 1)
     df_price_cost = df_price_cost_sample_group.reset_index(drop = True)
     return df_price_cost
 
