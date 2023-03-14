@@ -12,5 +12,5 @@ def drop_consumer_shared(df):
     return df
 
 def get_rid_not_needed(df):
-    df = df.drop(labels= ['i', 'v_x_1', 'v_x_2', 'v_x_3', 'v_p', 'u' ,'q_x', 'u_exp_x', 'u_exp_y'], axis = 1)
+    df = df.drop(labels= ['i', 'v_x_1', 'v_x_2', 'v_x_3', 'v_p' ,'q_x', 'u_exp_x', 'u_exp_y'], axis = 1)
     return df

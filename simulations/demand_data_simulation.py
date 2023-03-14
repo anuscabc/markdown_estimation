@@ -116,19 +116,6 @@ def get_continous_quantity(df, mu , omega, sigma, beta):
     return df_final
 
 
-# This is a not done function you need to get the index for each of the rows and then plug it in 
-# def get_non_continous_quantity(df, mu, omega, sigma, beta): 
-#     alpha_i = -(np.exp( mu + omega*df["v_p"]))
-#     beta_1i = beta[0] + sigma[0]*df["v_x_1"]
-#     beta_2i = beta[1] + sigma[1]*df["v_x_2"]
-#     beta_3i = beta[2] + sigma[2]*df["v_x_3"]
-#     u_i = beta_1i*df["x_1"] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["x_i"]
-#     df['u'] = u_i.tolist()
-#     df_get_max = df.groupby(['t', 'i'])['u'].max()
-#     df_with_q = pd.merge(df, df_get_max, on=['t','i'], how='inner')
-#     return  df_with_q
-
-
 def get_market_shares(df):
     copy_final_data = df.copy(deep = True)
     sum_quantity_market = df.groupby(['t'], as_index=False)['q'].agg('sum')
@@ -175,3 +162,4 @@ def get_logarithm_share(df):
     df['y'] = df['l_share_good'] - df['l_share_good_out']
     return df
 
+# Getting the fucntions to allow computation with teh delta parameters 

@@ -3,16 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy as sp
 import scipy.stats 
-import pyblp
 import matplotlib.pyplot as plt
 # importing the data simulation functions 
 import demand_data_simulation
 import clean_data
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
 
-
-pyblp.options.digits = 2
-pyblp.options.verbose = False
-pyblp.__version__
 
 
 # Seeting the seed for the simulation 
@@ -32,7 +29,7 @@ N = 500
 
 # This need to think more about, now it is continous quantity, but is that 
 # the way to go? Need to ask this on Friday
-L = 500 
+L = 300 
 
 # Setting the parameter of interest 
 beta = np.random.normal(0, 1, K)
@@ -101,20 +98,34 @@ df = demand_data_simulation.get_logarithm_share(df)
 
 df = clean_data.drop_consumer_shared(df)
 df = clean_data.get_rid_not_needed(df)
+df.to_csv("data/estimation1.csv")
 
 
-## Cool graph actual product mark-up denerated by the model at hand 
+# ## Cool graph actual product mark-up denerated by the model at hand 
 
-mark_up = df['p'] - df['c']
-
-
-# A mark-up histogram
-hist = plt.hist(mark_up, bins=100)  # arguments are passed to np.histogram
-plt.title("Histogram markup")
-plt.show()
+# mark_up = df['p'] - df['c']
 
 
-# Get the error 
-hist2 = plt.hist(df['shares'], bins=100) 
-plt.title("Histogram aggregate market shares")
-plt.show()
+# # A mark-up histogram
+# hist = plt.hist(mark_up, bins=100)  # arguments are passed to np.histogram
+# plt.title("Histogram markup")
+# plt.show()
+
+
+# # Get the error 
+# hist2 = plt.hist(df['shares'], bins=100) 
+# plt.title("Histogram aggregate market shares")
+# plt.show()
+
+# Getting started with the optimization algorthm and monte-carlo simluation for the 
+# market shares 
+print(beta)
+print(sigma)
+
+
+
+
+
+
+
+
