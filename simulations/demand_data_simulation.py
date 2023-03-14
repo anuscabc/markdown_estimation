@@ -95,8 +95,7 @@ def merge_datasets(df_1, df_2, df_3):
 def get_error(df):
     # Getting the extreme value distribution vector 
     e = np.random.gumbel(0, 1, size = len(df))
-    df['e'] = e.tolist()
-    return df
+    return e
 
 
 def get_continous_quantity(df, mu , omega, sigma, beta): 

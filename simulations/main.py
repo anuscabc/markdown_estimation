@@ -2,10 +2,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy as sp
+import scipy.stats 
 import pyblp
+import matplotlib.pyplot as plt
 # importing the data simulation functions 
 import demand_data_simulation
 import clean_data
+
 
 pyblp.options.digits = 2
 pyblp.options.verbose = False
@@ -93,12 +96,25 @@ df = demand_data_simulation.clear_outside_good(df)
 
 # 9. Get logatirhm variable 
 df = demand_data_simulation.get_logarithm_share(df)
-print(df)
 # Trying estimation with the PyBLP package for 
 # random coefficient logit 
 
 df = clean_data.drop_consumer_shared(df)
 df = clean_data.get_rid_not_needed(df)
-print(df)
 
 
+## Cool graph actual product mark-up denerated by the model at hand 
+
+mark_up = df['p'] - df['c']
+
+
+# A mark-up histogram
+hist = plt.hist(mark_up, bins=100)  # arguments are passed to np.histogram
+plt.title("Histogram markup")
+plt.show()
+
+
+# Get the error 
+hist2 = plt.hist(df['shares'], bins=100) 
+plt.title("Histogram aggregate market shares")
+plt.show()
