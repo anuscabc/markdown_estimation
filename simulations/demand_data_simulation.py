@@ -46,8 +46,10 @@ def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
     M = np.column_stack((M, x_i))
     M = np.column_stack((M, c))
     M = np.column_stack((M, p))
+
     # Getting the dataframe
     index = range(1, J*T+ 1)
+
     # The column names have to be changed depending on the 
     # number of product characteristics that have to be included 
     # in the estimation if it doesnt work that is why 
@@ -77,6 +79,7 @@ def outside_good_consumer_choice_data(df_price_cost, T):
 # Generating the consumer heterogeneity dataset 
 
 def consumer_heterg_data(N, T, K):
+
     # This generalized for when there are all random coefficient stuff
     consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
     repeat_consumer = np.tile(consumer_i, (T, 1))
@@ -124,7 +127,7 @@ def get_continous_quantity(df,mu,omega, beta):
     # beta_1i = beta[0] + sigma[0]*df["v_x_1"]
     # beta_2i = beta[1] + sigma[1]*df["v_x_2"]
     # beta_3i = beta[2] + sigma[2]*df["v_x_3"]
-    u_i = beta_1i*df['x_1'] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["xi"]
+    u_i = beta_1i*df['x_1'] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["xi"]  + df['e']
     df['u'] = u_i.tolist() 
     exp_u_i = np.exp(df['u'])
     df['u_exp'] = exp_u_i.tolist() 
@@ -138,9 +141,8 @@ def get_continous_quantity(df,mu,omega, beta):
     return df_final
 
 def get_discrete_quantity(df, mu, omega, beta): 
-    alpha_i = -(np.exp( mu + omega*df["v_p"]))
+    alpha_i = -(np.exp(mu + omega*df["v_p"]))
     df['alpha_i'] = alpha_i.tolist() 
-
     # This matters wether or not you include sigma in the equation 
     # This is for no other coefficients wuth random coefficents 
     beta_1i = beta[0] 
@@ -247,4 +249,18 @@ def market_share_general_nohetergo(theta, df):
     return shares, df_final2
 
 
+
+# Start by getting the indirect utility at the true parameters 
+# 
+def delta(theta, df):
+    delta = theta[0]*df['x_1'] + theta[1]*df['x_2'] + theta[2]*df['x_3'] + (-(np.exp(theta[3] + theta[4]**2/2)))*df["p"]+ df['xi'] 
+    df['delta_jt'] = delta.tolist()
+    return df
+
+
+# Ultimately integrate it into a function 
+def market_share_general_hetergo(theta, df):
+# This should give the mean indirect utility per product
+# This means that this should be J*T long 
+    return shares, df_final2
 

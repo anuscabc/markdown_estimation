@@ -55,49 +55,47 @@ omega = 1
 # T=
 price_xi = 1 # This is the gamma in the MacFadden paper()
 sd_xi = 0.1
-
 sd_x = 0.1
 sd_c = 0.5
 sd_p = 0.01
 
 
-# This might not be needed idk (talk about this tmr)
 
-#1. Drawing monte_carlo consumer heterogeneity
-# This is supposed to give a slighly different dataset and it appears to be working at 
-# the moment 
-V_mcmc = demand_data_simulation.consumer_heterg_data(L, T, K)
-print(V_mcmc)
-df_mcmc = demand_data_simulation.merge_datasets(V_mcmc, M, X)
-df_mcmc = demand_data_simulation.get_continous_quantity(df_mcmc, mu , omega, sigma, beta)
-# 6. Getting the market share at the actual parametrs, but in real life I dont
-# actually know these parameters so I need to somhow approximate them
-#=> That is where that V_mcmc comes from -> they are not the actual shocks that 
-# we have observed previously, but are going to be some randomly generated schocks 
-# that are intentionally wrong 
-df_mcmc = demand_data_simulation.get_market_shares(df_mcmc)
-# 7. Getting the outside good_market share as an additional variable  
-# Making the dataset all clean but also ready to run the monte-carlo simulations 
-df_mcmc = demand_data_simulation.market_shares_outside_good(df_mcmc, T, L)
-# 8. Getting rid of the outside good within the dataset 
-df_mcmc = demand_data_simulation.clear_outside_good(df_mcmc)
-# 9. Get logatirhm variable 
-df_mcmc = demand_data_simulation.get_logarithm_share(df_mcmc)
-# Trying estimation with the PyBLP package for 
-# random coefficient logit 
-df_mcmc = clean_data.drop_consumer_shared(df_mcmc)
-df_mcmc = clean_data.get_rid_not_needed(df_mcmc)
+# 1. Get the dataset for the products 
+# This X is actually a dataframe 
+X = demand_data_simulation.get_product_market_data(J, K, sd_x)
+
+# 2. Get the costs and the prices 
+M = demand_data_simulation.get_price_cost_data(J, T, price_xi, sd_c, sd_p)
+M = demand_data_simulation.getting_rid_random_products(M)
+M = demand_data_simulation.outside_good_consumer_choice_data(M, T)
+
+# 3. Get the consumer schocks 
+V = demand_data_simulation.consumer_heterg_data(N, T, K)
+
+# 4. Get the full dataset 
+# DO NOT CHANGE ORDER ARGUMENTS OFTHERWISE LEFT MERGE NOT WORK! 
+df = demand_data_simulation.merge_datasets(V, M, X)
+df = demand_data_simulation.get_error(df)
 
 
-# Need to write a function that first computes the simulated share 
-# and then computes the mean sqare error with the share data
-#
+# 5. Put the continous quantity in the dataframe 
+df_1 = demand_data_simulation.get_continous_quantity(df, mu , omega, beta)
+df = demand_data_simulation.get_discrete_quantity(df, mu , omega, beta)
+
+# 6. Getting the market share 
+df = demand_data_simulation.get_market_shares(df)
+df_1 = demand_data_simulation.get_market_shares(df_1)
 
 
-model = sm.MixedLM.from_formula('y ~ x_2 + x_3 + p', 
-                                data=df_mcmc, 
-                                groups=df_mcmc['j'], 
-                                re_formula='~ x_2 + x_3 + p')
+theta_true = np.append(beta, [mu, omega])
 
-result = model.fit()
-print(result.summary())
+# This is now calculated at the true parameter 
+df_1 = demand_data_simulation.delta(theta_true, df)
+
+# Rethink this a bit, might be easier to just make some instruments and use the pyblp package!! 
+
+
+
+
+

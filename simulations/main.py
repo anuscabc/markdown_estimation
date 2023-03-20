@@ -86,7 +86,6 @@ df = demand_data_simulation.get_error(df)
 
 # 5. Put the continous quantity in the dataframe 
 df = demand_data_simulation.get_discrete_quantity(df, mu , omega, beta)
-
 # 6. Getting the market share 
 df = demand_data_simulation.get_market_shares(df)
 # print(df)
@@ -115,7 +114,8 @@ df = demand_data_simulation.get_market_shares(df)
 theta_true = np.append(beta, [mu, omega])
 
 
-
+# THIS IS ALL THE ESTIMATION IN THE CASE OF ASSUMED 
+# NO HETEROGENOUS PRICE EFFECRS 
 # Generate a new dataframe 
 np.random.seed(2)
 # 3. Get the consumer schocks 
@@ -149,7 +149,9 @@ res = minimize(f, theta_0, args=(df_1), method = 'Nelder-Mead')
 print(res.x)
 
 
-# There has to be function that assumes heterogeneity 
+# THIS IS ALL THE ESTIMATION IN THE CASE OF ASSUMED 
+# WITH HETEROGENOUS PRICE EFFECTS - it is also going to include all the complicated
+# function with continous market shares 
  
 
 
