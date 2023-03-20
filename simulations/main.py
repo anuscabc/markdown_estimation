@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy as sp
-import scipy.stats 
+import scipy.stats
+from scipy.optimize import minimize
+# import scipy.optimize
 import matplotlib.pyplot as plt
 # importing the data simulation functions 
 import demand_data_simulation
@@ -18,20 +20,20 @@ pd.set_option('float_format', '{:.2f}'.format)
 np.random.seed(1)
 
 # Getting the number of products 
-J = 3
+J = 10
 
 # Dimmention product characteristics 
 K = 3 # 2 with random coeff and the other constant also random coeff
 
 # Number of markets 
-T = 10
+T = 100
 
-# Number of consumsers per market 
-N = 5
+# Number of consumers per market 
+N = 500
 
 # This need to think more about, now it is continous quantity, but is that 
 # the way to go? Need to ask this on Friday
-L = 300 
+L = 500
 
 # Setting the parameter of interest 
 beta = np.random.normal(0, 1, K)
@@ -85,53 +87,70 @@ df = demand_data_simulation.get_error(df)
 # 5. Put the continous quantity in the dataframe 
 df = demand_data_simulation.get_discrete_quantity(df, mu , omega, beta)
 
-
 # 6. Getting the market share 
 df = demand_data_simulation.get_market_shares(df)
+# print(df)
 
 
 # 7. Getting the outside good_market share as an additional variable  
 # Making the dataset all clean but also ready to run the monte-carlo simulations 
+# df = demand_data_simulation.market_shares_outside_good(df, T, N)
 
-df = demand_data_simulation.market_shares_outside_good(df, T, N)
+# # 8. Getting rid of the outside good within the dataset 
+# df = demand_data_simulation.clear_outside_good(df)
 
-# 8. Getting rid of the outside good within the dataset 
-df = demand_data_simulation.clear_outside_good(df)
-
-# 9. Get logatirhm variable 
-df = demand_data_simulation.get_logarithm_share(df)
-print(df)
-
-# Trying estimation with the PyBLP package for 
-# random coefficient logit 
+# # 9. Get logatirhm variable 
+# df = demand_data_simulation.get_logarithm_share(df)
 
 # df = clean_data.drop_consumer_shared(df)
 # df = clean_data.get_rid_not_needed(df)
-df.to_csv("data/estimation1.csv", float_format='%.2f')
-
-
-# ## Cool graph actual product mark-up denerated by th 
-
-# mark_up = df['p'] - df['c']
-
-
-# # A mark-up histogram
-# hist = plt.hist(mark_up, bins=100)  # arguments are passed to np.histogram
-# plt.title("Histogram markup")
-# plt.show()
-
-
-# # Get the error 
-# hist2 = plt.hist(df['shares'], bins=100) 
-# plt.title("Histogram aggregate market shares")
-# plt.show()
-
-# Getting started with the optimization algorthm and monte-carlo simluation for the 
-# market shares 
+# df.to_csv("data/estimation1.csv", float_format='%.2f')
 
 
 
 
+
+
+# Getting a new try with the generalized market share
+theta_true = np.append(beta, [mu, omega])
+
+
+
+# Generate a new dataframe 
+np.random.seed(2)
+# 3. Get the consumer schocks 
+V_1 = demand_data_simulation.consumer_heterg_data(N, T, K)
+
+# 4. Get the full dataset 
+# DO NOT CHANGE ORDER ARGUMENTS OFTHERWISE LEFT MERGE NOT WORK! 
+df_1 = demand_data_simulation.merge_datasets(V_1, M, X)
+df_1 = demand_data_simulation.get_error(df_1)
+
+# This function now needs to be called many times with theta = update until the two shares converge 
+print(df['e'])
+print(df_1['e'])
+
+
+# df_1 = demand_data_simulation.market_share_general(theta_true, df_1)
+# print(df_1[1])
+
+# This function assumes no unobserved heterogeneity 
+def f(theta, df_1):
+    shares_true = df['shares'].to_numpy()
+    shares_est, _ = demand_data_simulation.market_share_general_nohetergo(theta, df_1)
+    # print(shares_true)
+    # print(shares_est.to_numpy())
+    print(theta)
+    return np.linalg.norm(shares_true - shares_est.to_numpy())
+
+theta_0 = [1.2, -0.5, -0.6, 0.4, 1.]
+
+res = minimize(f, theta_0, args=(df_1), method = 'Nelder-Mead')
+print(res.x)
+
+
+# There has to be function that assumes heterogeneity 
+ 
 
 
 
