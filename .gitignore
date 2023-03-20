@@ -130,6 +130,6 @@ dmypy.json
 
 # Dont push big data files
 /data
-/src
+# /src
 plots/.DS_Store
 .DS_Store

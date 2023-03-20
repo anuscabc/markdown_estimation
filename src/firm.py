@@ -11,7 +11,7 @@ import numpy as np
 #         self.cost = cost 
 
 def demand(x_own, x_rest, b):
-    return 100 - b * (x_own - np.sum(x_rest))
+    return 10000 - b * (x_own - np.sum(x_rest))
 
 
 def profit(x_own, x_rest, c_own, b):
