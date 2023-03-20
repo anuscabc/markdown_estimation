@@ -25,8 +25,15 @@ def get_product_market_data(J, K, sd_x):
     
 
 def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
+
+
     # Getting the price marginal cost and the exognous demand shock in a dataframe 
-    x_i = np.random.normal(0, 1, size = (J*T, 1))
+    # This is for when prices are not endogenous 
+    x_i = np.zeros(shape = (J*T, 1))
+
+
+    # This is for getting the endogenous prices 
+    # x_i = np.random.normal(0, 1, size = (J*T, 1))
     c = np.random.lognormal(mean=0.0, sigma= sd_c, size=(J*T, 1))
     p =  c+ np.random.lognormal(price_xi*x_i, sd_p, size=(J*T, 1))
     j = np.reshape(np.array(range(1, J+1)), (J, 1))
@@ -67,6 +74,7 @@ def outside_good_consumer_choice_data(df_price_cost, T):
 # Generating the consumer heterogeneity dataset 
 
 def consumer_heterg_data(N, T, K):
+    # This generalized for when there are all random coeffcient stuff
     consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
     repeat_consumer = np.tile(consumer_i, (T, 1))
     t = np.array(range(1, T+1))
@@ -95,25 +103,58 @@ def merge_datasets(df_1, df_2, df_3):
 def get_error(df):
     # Getting the extreme value distribution vector 
     e = np.random.gumbel(0, 1, size = len(df))
-    return e
+    df['e'] = e.tolist()
+    return df
 
 
 def get_continous_quantity(df, mu , omega, sigma, beta): 
     alpha_i = -(np.exp( mu + omega*df["v_p"]))
+    # This matters wether or not you include sigma in the equation
+    # This is for no other coefficients wuth random coefficents 
+    beta_1i = beta[0] 
+    beta_2i = beta[1]
+    beta_3i = beta[2] 
     # Here we can change which coefficients have random coefficients
-    beta_1i = beta[0] + sigma[0]*df["v_x_1"]
-    beta_2i = beta[1] + sigma[1]*df["v_x_2"]
-    beta_3i = beta[2] + sigma[2]*df["v_x_3"]
-    u_i = beta_1i*df["x_1"] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["xi"]
+    # beta_1i = beta[0] + sigma[0]*df["v_x_1"]
+    # beta_2i = beta[1] + sigma[1]*df["v_x_2"]
+    # beta_3i = beta[2] + sigma[2]*df["v_x_3"]
+    u_i = beta_1i*df['x_1'] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["xi"] + df['e']
     df['u'] = u_i.tolist() 
     exp_u_i = np.exp(df['u'])
     df['u_exp'] = exp_u_i.tolist() 
     # Getting the quantity each consumer gets in each of the markets 
     sum_utility_group = df.groupby(['t','i'], as_index=False)['u_exp'].agg('sum')
     df_final = pd.merge(df, sum_utility_group, on=['t','i'], how='inner')
+    # q = max(u) take 1 else 0 
     q = df_final['u_exp_x']/(1 + df_final['u_exp_y'])
     df_final['q'] = q.tolist() 
     return df_final
+
+def get_discrete_quantity(df, mu , omega, beta): 
+    alpha_i = -(np.exp( mu + omega*df["v_p"]))
+    df['alpha_i'] = alpha_i.tolist() 
+
+    # This matters wether or not you include sigma in the equation 
+    # This is for no other coefficients wuth random coefficents 
+    beta_1i = beta[0] 
+    beta_2i = beta[1]
+    beta_3i = beta[2] 
+    # Here we can change which coefficients have random coefficients
+    # beta_1i = beta[0] + sigma[0]*df["v_x_1"]
+    # beta_2i = beta[1] + sigma[1]*df["v_x_2"]
+    # beta_3i = beta[2] + sigma[2]*df["v_x_3"]
+    u_i = beta_1i*df["x_1"] + beta_2i*df["x_2"] + beta_3i*df["x_3"] + alpha_i*df["p"] + df["xi"] + df['e']
+    df['u'] = u_i.tolist() 
+    df_max_u_index = df.groupby(['t', 'i'])['u'].transform(max)== df['u']
+    q_i  = []
+    for i in df_max_u_index:
+        if i == True:
+            q_i.append(1)
+        else:
+            q_i.append(0)
+    df['q'] = q_i
+    return df
+
 
 
 def get_market_shares(df):
@@ -126,6 +167,8 @@ def get_market_shares(df):
     # Getting the market shares for each othe goods in each market
     shares = df_final2['q']/df_final2['q_y']
     df_final2['shares'] = shares.tolist() 
+    # Replace 0 shares in case very small value (see thesis notes)
+    df_final2['shares'] = df_final2['shares'].replace(0, 1e-10)
     return df_final2
 
 
