@@ -27,8 +27,6 @@ def get_product_market_data(J, K, sd_x):
     
 
 def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
-
-
     # Getting the price marginal cost and the exognous demand shock in a dataframe 
     # This is for when prices are not endogenous 
     # x_i = np.zeros(shape = (J*T, 1))
@@ -79,7 +77,6 @@ def outside_good_consumer_choice_data(df_price_cost, T):
 # Generating the consumer heterogeneity dataset 
 
 def consumer_heterg_data(N, T, K):
-
     # This generalized for when there are all random coefficient stuff
     consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
     repeat_consumer = np.tile(consumer_i, (T, 1))
@@ -113,6 +110,24 @@ def get_error(df):
     e = np.random.gumbel(0, 1, size = len(df))
     df['e'] = e.tolist()
     return df
+
+
+def generate_demand_data(J, K, T, N, price_xi, sd_x, sd_c, sd_p):
+
+    X = get_product_market_data(J, K, sd_x)
+
+    # 2. Get the costs and the prices 
+    M = get_price_cost_data(J, T, price_xi, sd_c, sd_p)
+    M = getting_rid_random_products(M)
+    M = outside_good_consumer_choice_data(M, T)
+
+    # 3. Get the consumer schocks 
+    V = consumer_heterg_data(N, T, K)
+    df = merge_datasets(V, M, X)
+    return df, X, M, V
+
+
+
 
 
 def get_continous_quantity(df,mu,omega, beta): 
@@ -180,73 +195,9 @@ def get_market_shares(df):
     return df_final2
 
 
-# There has to be a better way to write this function, figure it out later
-def market_shares_outside_good(df, T, N):
-    array1 = df[['j', 'shares']].to_numpy()
-    index_outside_good_shares = np.where(array1[:,0] == 0)
-    axis = 0
-    outside_good_shares = np.take(array1, index_outside_good_shares, axis)
-    outside_good_shares_reshaped = outside_good_shares.reshape(-1,2)
-    t = np.array(range(1, T+1))
-    markets_t = np.repeat(t, N)
-    markets_t = np.reshape(markets_t, (N*T, 1))
-    to_df = np.delete(np.column_stack((markets_t, outside_good_shares_reshaped)),1, 1)
-
-    # Make this dataframe with the share of the outside goods that needs to be matched
-    consumer_i = np.reshape(np.array(range(1, N+1)), (N, 1))
-    repeat_consumer = np.tile(consumer_i, (T, 1))
-    to_df_2 = np.column_stack((to_df, repeat_consumer))
-    index = range(1, N*T+ 1, 1)
-    columns = ['t', 'share_outside', 'i']
-    df_outside_good = pd.DataFrame(to_df_2, index, columns)
-
-    # Need to get rid of all the market shares j = 0 in the dataframe
-    # Merging the two datasets 
-    df_clean = pd.merge(df, df_outside_good, on =['t', 'i'], how='inner' )
-
-    return df_clean
-
-def clear_outside_good(df): 
-    df.drop(df[df['j'] == 0].index, inplace = True)
-    return df
-
-def get_logarithm_share(df): 
-    df['l_share_good'] = np.log(df['shares'])
-    df['l_share_good_out'] = np.log(df['share_outside'])
-    df['y'] = df['l_share_good'] - df['l_share_good_out']
-    return df
-
-# Getting the fucntions to allow computation with teh delta parameters 
-# Generalized market share function: 
 
 
-def market_share_general_nohetergo(theta, df):
-    utility = theta[0]*df["x_1"] + theta[1]*df["x_2"] + theta[2]*df["x_3"] + (-(np.exp(theta[3] + theta[4]*df["v_p"])))*df["p"] + df['e']
-    df['u'] = utility.tolist() 
-    df_max_u_index = df.groupby(['t', 'i'])['u'].transform(max) == df['u']
-    q_i  = []
-    for i in df_max_u_index:
-        if i == True:
-            q_i.append(1)
-        else:
-            q_i.append(0)
-    df['q'] = q_i
-    copy_final_data = df.copy(deep = True)
-    sum_quantity_market = df.groupby(['t'], as_index=False)['q'].agg('sum')
-    sum_quantity_market_good = copy_final_data.groupby(['t', 'j'], as_index=False)['q'].agg('sum')
-    
-    # Need to put them all together in the final dataset 
-    df_final1 = pd.merge(df, sum_quantity_market, on=['t'], how='inner')
-    df_final2 = pd.merge(df_final1, sum_quantity_market_good, on =['t', 'j'], how='inner' )
-   
-   # Getting the market shares for each othe goods in each market
-    shares = df_final2['q']/df_final2['q_y']
-    df_final2['shares'] = shares.tolist() 
-    
-    # Replace 0 shares in case very small value (see thesis notes)
-    df_final2['shares'] = df_final2['shares'].replace(0, 1e-10)
 
-    return shares, df_final2
 
 
 
@@ -259,8 +210,8 @@ def delta(theta, df):
 
 
 # Ultimately integrate it into a function 
-def market_share_general_hetergo(theta, df):
-# This should give the mean indirect utility per product
-# This means that this should be J*T long 
-    return shares, df_final2
+# def market_share_general_hetergo(theta, df):
+# # This should give the mean indirect utility per product
+# # This means that this should be J*T long 
+#     return shares, df_final2
 

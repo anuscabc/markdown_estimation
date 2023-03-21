@@ -1,3 +1,4 @@
+import pyblp
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -86,28 +87,12 @@ df = demand_data_simulation.get_discrete_quantity(df, mu , omega, beta)
 df = demand_data_simulation.get_market_shares(df)
 
 
-# Parameter estimation assuming no endogenous prices
-theta_true = np.append(beta, [mu, omega])
-theta_0 = [1.2, -0.5, -0.6, 0.4, 1.]
 
-np.random.seed(2)
-
-df_MC = demand_data_estimation.MC_dataset(L, T, K, M, X)
-
-def f(theta, df_MC, df):
-    shares_true = df['shares'].to_numpy()
-    shares_est, _ = demand_data_estimation.market_share_general_nohetergo(theta, df_MC)
-    return np.linalg.norm(shares_true - shares_est.to_numpy())
-
-
-res = minimize(f, theta_0, args=(df_MC, df), method = 'Nelder-Mead')
-print(res.x)
-print(theta_true)
-
-
-
- 
-
-
-
-
+# This first step is to get the dataset to look like the dataset they use 
+df = clean_data.market_shares_outside_good(df, T, N)
+df = clean_data.clear_outside_good(df)
+df = clean_data.get_logarithm_share(df)
+df = clean_data.drop_consumer_shared(df)
+df = clean_data.get_rid_not_needed(df)
+                                     
+                            
