@@ -29,10 +29,12 @@ def get_product_market_data(J, K, sd_x):
 def get_price_cost_data(J, T, price_xi, sd_c, sd_p):
     # Getting the price marginal cost and the exognous demand shock in a dataframe 
     # This is for when prices are not endogenous 
-    # x_i = np.zeros(shape = (J*T, 1))
+    x_i = np.zeros(shape = (J*T, 1))
 
     # This is for getting the endogenous prices 
-    x_i = np.random.normal(0, 1, size = (J*T, 1))
+    # x_i = np.random.normal(0, 1, size = (J*T, 1))
+
+
     c = np.random.lognormal(mean=0.0, sigma= sd_c, size=(J*T, 1))
     p =  c+ np.random.lognormal(price_xi*x_i, sd_p, size=(J*T, 1))
     j = np.reshape(np.array(range(1, J+1)), (J, 1))

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 from consumer import Consumer
-from firm import Firm
+from simulations.firm import Firm
 
 
 class Market:

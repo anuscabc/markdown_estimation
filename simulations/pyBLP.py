@@ -15,7 +15,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 
-pd.set_option('float_format', '{:.2f}'.format)
+# pd.set_option('float_format', '{:.2f}'.format)
 
 
 # Seeting the seed for the simulation 
@@ -71,11 +71,6 @@ sd_p = 0.01
 # 1. Generate initial dataset from which we can do all the estimation
 output = demand_data_simulation.generate_demand_data(J, K, T, N, price_xi, sd_x, sd_c, sd_p)
 df = output[0]
-X = output[1]
-M = output[2]
-V = output[3]
-
-
 
 # 2. Get the error term calculating the utility
 df = demand_data_simulation.get_error(df)
@@ -92,7 +87,22 @@ df = demand_data_simulation.get_market_shares(df)
 df = clean_data.market_shares_outside_good(df, T, N)
 df = clean_data.clear_outside_good(df)
 df = clean_data.get_logarithm_share(df)
-df = clean_data.drop_consumer_shared(df)
 df = clean_data.get_rid_not_needed(df)
-                                     
-                            
+                                    
+
+df = clean_data.aggregate(df)
+
+df = df.rename(columns={'t': 'market_ids', 'j': 'firm_ids'})
+df = df.reset_index()
+
+
+# Create at least 5-6 demand instruments 
+demand_instruments = pyblp.build_blp_instruments(pyblp.Formulation('1 + x_2 + x_3'), df)
+df = df.join(pd.DataFrame(demand_instruments))
+
+df = df.drop(labels = ['0', '1', '2'])
+df = df.rename(columns={'1': 'demand_instruments', 'j': 'firm_ids'})
+
+
+
+

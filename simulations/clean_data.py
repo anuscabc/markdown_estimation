@@ -43,10 +43,14 @@ def get_logarithm_share(df):
     df['y'] = df['l_share_good'] - df['l_share_good_out']
     return df
 
-def drop_consumer_shared(df): 
-    df =  df.drop_duplicates(['shares'])
-    return df
 
 def get_rid_not_needed(df):
     df = df.drop(labels= ['i', 'v_x_1', 'v_x_2', 'v_x_3', 'v_p'], axis = 1)
     return df
+
+def aggregate(df): 
+    df =  df.drop_duplicates(['y'])
+    return df
+
+
+# Get some demand instrumetns in

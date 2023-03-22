@@ -8,7 +8,7 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 # importing the data simulation functions 
 import demand_data_simulation
-import clean_data
+import clean_data 
 import demand_data_estimation
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
