@@ -24,12 +24,13 @@ p = np.array([1., 1., 0])
 X = np.array([0.3, 0.4, 0])
 beta = [1, 2]
 alpha = -0.5
-e = np.random.gumbel(0, 1, size = len(p))
+# initiate some number of consumers 
+N = 1
+e = np.random.gumbel(0, 1, size = len(p*N))
 
 def utility_exponetial(beta, X, price, alpha, e):
     u_exp = np.exp(beta[0] + alpha*price + beta[1]*X+ e)
     return u_exp
-
 
 def sum_utility(beta, X, price, alpha, e):
     # here think a bit about how you want to introduce the outside good 
@@ -40,6 +41,10 @@ def quantity(beta, X, price, alpha, sum_u_ex, e):
     q = (np.exp(beta[0] + alpha*price + beta[1]*X+ e))/(1 + sum_u_ex)
     return q
 
+def quantity_more_consumers(beta, X, price, alpha, sum_u_ex, e): 
+    for i in range(1, N+1, 1):
+        q = (np.exp(beta[0] + alpha*price + beta[1]*X+ e))/(1 + sum_u_ex)
+    return q
 
 
 utilities = utility_exponetial(beta, X, p, alpha, e)

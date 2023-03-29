@@ -28,7 +28,7 @@ J = 10
 K = 3 # 2 with random coeff and the other constant also random coeff
 
 # Number of markets 
-T = 1000
+T = 100
 
 # Number of consumers per market 
 N = 500
@@ -89,7 +89,7 @@ df = demand_data_simulation.get_market_shares(df)
 
 # Parameter estimation assuming no endogenous prices
 theta_true = np.append(beta, [mu, omega])
-theta_0 = [1., 1., 1., 1., 1.]
+theta_0 = [1., -1., -1., 1., 1.]
 
 np.random.seed(2)
 
