@@ -157,6 +157,7 @@ def get_continous_quantity(df,mu,omega, beta):
     df_final['q'] = q.tolist() 
     return df_final
 
+
 def get_discrete_quantity(df, mu, omega, beta): 
     alpha_i = -(np.exp(mu + omega*df["v_p"]))
     df['alpha_i'] = alpha_i.tolist() 

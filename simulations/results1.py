@@ -12,8 +12,9 @@ import clean_data
 import demand_data_estimation
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import time
 
-
+start = time.time()
 pd.set_option('float_format', '{:.2f}'.format)
 
 
@@ -27,7 +28,7 @@ J = 10
 K = 3 # 2 with random coeff and the other constant also random coeff
 
 # Number of markets 
-T = 100
+T = 1000
 
 # Number of consumers per market 
 N = 500
@@ -49,6 +50,7 @@ beta[0]= 2
 # consumers 
 mu = 0.5 
 omega = 1 
+
 
 
 # Setting some anxilliary parameters 
@@ -87,7 +89,7 @@ df = demand_data_simulation.get_market_shares(df)
 
 # Parameter estimation assuming no endogenous prices
 theta_true = np.append(beta, [mu, omega])
-theta_0 = [1.2, -0.5, -0.6, 0.4, 1.]
+theta_0 = [1., 1., 1., 1., 1.]
 
 np.random.seed(2)
 
@@ -98,14 +100,14 @@ def f(theta, df_MC, df):
     shares_est, _ = demand_data_estimation.market_share_general_nohetergo(theta, df_MC)
     return np.linalg.norm(shares_true - shares_est.to_numpy())
 
-
 res = minimize(f, theta_0, args=(df_MC, df), method = 'Nelder-Mead')
 print(res.x)
 print(theta_true)
 
+end = time.time()
 
+print("The time of execution of above program is :",
+      (end-start) /60, "minutes")
  
-
-
 
 
