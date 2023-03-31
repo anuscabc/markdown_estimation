@@ -91,6 +91,8 @@ df = demand_data_simulation.get_market_shares(df)
 theta_true = np.append(beta, [mu, omega])
 theta_0 = [1., -1., -1., 1., 1.]
 
+# need to change the seed to get different values for the monte-carlo 
+# simulation 
 np.random.seed(2)
 
 df_MC = demand_data_estimation.MC_dataset(L, T, K, M, X)

@@ -20,7 +20,9 @@ import statsmodels.formula.api as smf
 # This can be the share data as defined in the simulation part i think 
 np.random.seed(4)
 # def exponeential utility: 
+# This should work for normalized consumer mass to 1 
 p = np.array([1., 1., 0])
+c = np.array([0.4, 0.5, 0])
 X = np.array([0.3, 0.4, 0])
 beta = [1, 2]
 alpha = -0.5
@@ -28,69 +30,62 @@ alpha = -0.5
 N = 1
 e = np.random.gumbel(0, 1, size = len(p*N))
 
-def utility_exponetial(beta, X, price, alpha, e):
-    u_exp = np.exp(beta[0] + alpha*price + beta[1]*X+ e)
-    return u_exp
 
 def sum_utility(beta, X, price, alpha, e):
     # here think a bit about how you want to introduce the outside good 
-    sum_u_exp = sum((np.exp(beta[0] + alpha*price + beta[1]*X+ e)[:-1]))
+    sum_u_exp = sum((np.exp(beta[0] + alpha*price + beta[1]*X+e)[:-1]))
     return sum_u_exp
 
-def quantity(beta, X, price, alpha, sum_u_ex, e): 
+def probability(beta, X, price, alpha, sum_u_ex, e): 
     q = (np.exp(beta[0] + alpha*price + beta[1]*X+ e))/(1 + sum_u_ex)
     return q
 
-def quantity_more_consumers(beta, X, price, alpha, sum_u_ex, e): 
-    for i in range(1, N+1, 1):
-        q = (np.exp(beta[0] + alpha*price + beta[1]*X+ e))/(1 + sum_u_ex)
-    return q
+def profit(beta, X, price, alpha, sum_u_ex, e, c):
+    q = probability(beta, X, price, alpha, sum_u_ex, e)
+    Pi = - 1*q*(price - c)
+    return Pi
+
+def inverse(beta, X, price, alpha, sum_u_ex, e, c):
 
 
-utilities = utility_exponetial(beta, X, p, alpha, e)
+# Need to rewrite and get the inverse for the fixed point inverse function for the iteration 
+
+# in this case this has to be: 
+# somethink along the lines of: 
+# need to make check that the determinant of the matrix is non zero but there you already work 
+# with a vector cause each frm produced only one good 
+def fixedPointIteration(price, error, num_ter):
+    print('\n\n*** FIXED POINT ITERATION ***')
+    step = 1
+    flag = 1
+    condition = True
+    while condition:
+        #THERE WE NEED TO HAVE THE INPUT TO CALL ON THE INVERSE FUNCTION 
+        price1 = c
+        print('Iteration-%d, price = %0.6f and profit(x1) = %0.6f' % (step, x1, f(x1)))
+        price = price1
+
+        step = step + 1
+        
+        if step > num_ter:
+            flag=0
+            break
+        
+        condition = abs(profit(_funciton of all in_)) > error
+
+    if flag==1:
+        print('\nRequired root is: %0.8f' % price)
+    else:
+        print('\nNot Convergent.')
+
+
+
+
 sum = sum_utility(beta, X, p, alpha, e)
-quantity_check = quantity(beta, X, p, alpha, sum, e)
-
-print(e)
-print(utilities)
-print(sum)
-print(quantity_check)
-# def share(price_own, price, beta, alpha, x_2_own, x_2, x_3_own, x_3):
-
-#     return share
+prob = probability(beta, X, p, alpha, sum, e)
+prof = profit(beta, X, p, alpha, sum, e, c)
 
 
-# def profit(x_own, x_rest, c_own, b):
-#     return share(x_own, x_rest, b) * (x_own - c_own)
-
-# def neg_profit(x_own, x_rest, c_own, b):
-#     return -1 * profit(x_own, x_rest, c_own, b)
-
-
-# def reaction(x, c, b, i):
-#     c_own = c[i]
-#     x_rest = np.delete(x, i)
-#     params = (x_rest, c_own, b)
-#     x_opt = optimize.brute(neg_profit, ((0, 1,),), args=params)
-#     return x_opt[0]
-
-
-# def vector_reaction(x, params): 
-#     b, c, n_firms = params
-#     return np.array(x) - np.array([reaction(x, c, b, i) for i in range(n_firms)])
-
-
-# np.random.seed(1012)
-
-
-# b0 = 5.
-# for n_firms in range(1, 10, 1):
-#     c = np.random.uniform(1,4,n_firms)
-#     params = [b0, c, n_firms]
-#     x0 = np.ones(n_firms)
-#     ans = optimize.fsolve(vector_reaction, x0, args=(params))
-#     print(ans)
-
-
-# try to get the fixed point iteration to somewhat work 
+print(prob)
+print(prof)
 
