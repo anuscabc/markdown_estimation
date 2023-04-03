@@ -103,6 +103,7 @@ df = df.join(pd.DataFrame(demand_instruments))
 df = df.drop(labels = ['0', '1', '2'])
 df = df.rename(columns={'1': 'demand_instruments', 'j': 'firm_ids'})
 
+print(df)
 
 
 
