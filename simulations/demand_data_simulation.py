@@ -21,8 +21,8 @@ def get_product_market_data(J, K, sd_x):
     # number of product characteristics that have to be included 
     # in the estimation if it doesnt work that is why 
     columns = ["j", "x_1", "x_2", "x_3"]
-    df_product_car = pd.DataFrame(data = X, index = index, columns= columns )
-    
+    df_product_car = pd.DataFrame(data = X, index = index, columns = columns )
+
     return df_product_car
     
 

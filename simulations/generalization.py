@@ -13,7 +13,12 @@ np.random.seed(8)
 N = 10
 
 # The number of product characteristics
-J = 2
+caract = 2
+
+# The number of time periods in the model 
+T = 2
+
+# The number of markets
 
 # put in the true param because the firm actually knows them
 beta = np.array([2., -0.611, -0.528])
@@ -21,13 +26,31 @@ alpha = -2.71
 
 
 p = np.ones(N)
-c = np.random.lognormal(0, 1, size = N)
-Xj = np.random.lognormal(0, 1, size = (N, J)) 
+Xj = np.random.lognormal(0, 1, size = (N, caract)) 
 X0 = np.ones(N)
 X = np.column_stack((X0, Xj))
 
 
-res1 = scipy.optimize.root(firm.root_objective, p, args=(N, X, beta, alpha, c), method = 'broyden2')
-optimal_price = res1.x
-print(optimal_price)
-print(X)
+list_prices = []
+list_cost = []
+
+# Making a for loop where the cost changes each period 
+for i in range (1, T+1, 1): 
+    c = np.random.lognormal(0, 1, size = N)
+    res1 = scipy.optimize.root(firm.root_objective, p, args=(N, X, beta, alpha, c), method = 'broyden2')
+    optimal_price = res1.x
+    list_prices.append(optimal_price)
+    list_cost.append(c)
+
+# Make it in array form 
+array_prices = np.concatenate(list_prices).ravel()
+array_cost = np.concatenate(list_cost).ravel()
+
+
+# Integrate the product characteristics from the other market 
+
+
+
+
+
+
