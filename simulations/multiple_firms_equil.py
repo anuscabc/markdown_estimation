@@ -16,7 +16,7 @@ np.random.seed(7)
 # This should work for normalized consumer mass to 1 
 
 # define the global parameter and the global number of firms 
-N = 10
+N = 20
 
 # put in the true param because the firm actually knows them
 beta = [2., -0.611]
@@ -35,7 +35,7 @@ for n in range(1, N+1, 1):
     e = np.random.gumbel(0, 1, size = n)
 
     # getting all the values of interest at the optimal price
-    res1 = scipy.optimize.root(firm.root_objective, p, args=(n, beta, X, alpha, c), method = 'hybr')
+    res1 = scipy.optimize.root(firm.root_objective, p, args=(n, beta, X, alpha, c), method = 'broyden2')
     optimal_price = res1.x
     profit = firm.profit(optimal_price, beta, X, alpha, c)
     markup = firm.markup(optimal_price, c)
