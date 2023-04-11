@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import firm
 
 # This can be the share data as defined in the simulation part i think 
-seed = 1012
+seed = 9
 np.random.seed(seed)
 # def exponeential utility: 
 # This should work for normalized consumer mass to 1 
@@ -30,6 +30,7 @@ average_price = []
 average_profit = []
 average_markup = []
 outside_good_share = []
+average_cost = []
 
 # Talk about the stochasticity when there are too large variation
 all_Xj = np.random.uniform(4, 5, size=(N, J))
@@ -57,15 +58,18 @@ for n in range(1, N+1, 1):
     mean_optimal_price = np.mean(optimal_price)
     mean_optimal_profit = np.mean(profit)
     mean_optimal_markup = np.mean(markup)
+    mean_cost = np.mean(c)
     average_price.append(mean_optimal_price)
     average_markup.append(mean_optimal_markup)
     average_profit.append(mean_optimal_profit)
     outside_good_share.append(outside_good)
+    average_cost.append(mean_cost)
 
 df = pd.DataFrame({'avg_price': average_price,
                    'avg_profit': average_profit,
                    'avg_markup': average_markup,
-                   'outside_share': outside_good_share})
+                   'outside_share': outside_good_share,
+                   'cost': average_cost})
 df.to_csv(f'data/sim_{seed}.csv', index=False)
 
 

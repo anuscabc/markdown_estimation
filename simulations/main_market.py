@@ -21,8 +21,8 @@ alpha = -2.71
 
 
 p = np.ones(N)
-c = np.random.lognormal(0, 1, size = N)
-Xj = np.random.lognormal(0, 1, size = (N, J)) 
+c = np.random.uniform(1, 2, size=N)
+Xj = np.random.uniform(4, 5, size=(N, J))
 X0 = np.ones(N)
 X = np.column_stack((X0, Xj))
 
