@@ -11,20 +11,24 @@ import matplotlib.pyplot as plt
 import firm
 
 # This can be the share data as defined in the simulation part i think 
-seed = 9
+seed = 50
 np.random.seed(seed)
 # def exponeential utility: 
 # This should work for normalized consumer mass to 1 
 
 # The number of firms in the market
-N = 100
-
+N = 10
 # The number of product characteristics
 J = 2
 
 # put in the true param because the firm actually knows them
-beta = np.array([2., -0.611, -0.528])
-alpha = -2.71
+beta = np.array([2, 0.611, -0.528])
+mu = 0.5
+omega = 1
+
+#the mean alpha is 
+alpha = - np.exp(mu + omega**2/2)
+print(alpha)
 
 average_price = []
 average_profit = []
@@ -33,25 +37,30 @@ outside_good_share = []
 average_cost = []
 
 # Talk about the stochasticity when there are too large variation
-all_Xj = np.random.uniform(4, 5, size=(N, J))
-all_c = np.random.uniform(1, 2, size=N)
+e = np.random.normal(size = N)
+all_Xj = np.random.uniform(4.,5., size=(N, J))
+all_c = np.random.uniform(3, 3, size = N)
+
+# need to somehow include the errors in the estimation 
+# need to sit down and make some sort of programming scheme and rewrite a bunch of stuff 
+# also need to check where some of the stuff goes wrong 
 
 for n in range(1, N+1, 1):
     p = np.ones(n)
-    # Xj = np.random.lognormal(0, 1, size = (n, J)) 
     Xj = all_Xj[:n, :]
     X0 = np.ones(n)
     X = np.column_stack((X0, Xj))
-    # c = np.random.lognormal(0, 1, size = n)
     c = all_c[:n]
 
     # getting all the values of interest at the optimal price
     res1 = scipy.optimize.root(firm.root_objective, p, args=(n, X, beta, alpha, c),
                                method='broyden2')
     optimal_price = res1.x
+    print(optimal_price)
     markup = firm.markup(optimal_price, c)
     share = firm.probability(optimal_price, alpha, X, beta)
     outside_good = 1 - sum(share)
+    print(outside_good)
     profit = firm.profit(optimal_price, share, c)
 
     # putting all the means in a list to append later 

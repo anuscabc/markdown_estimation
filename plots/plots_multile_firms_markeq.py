@@ -22,5 +22,5 @@ def visualize_marketeq_stability(seed):
     fig.savefig("plots/all.png")
 
 if __name__ == "__main__":
-    seed = 9
+    seed = 50
     visualize_marketeq_stability(seed)

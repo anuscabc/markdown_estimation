@@ -5,7 +5,6 @@ import scipy as sp
 import scipy.stats
 from scipy.optimize import minimize
 from scipy.optimize import fsolve
-import matplotlib.pyplot as plt
 
 
 
