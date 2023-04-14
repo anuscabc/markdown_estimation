@@ -28,7 +28,6 @@ omega = 1
 
 #the mean alpha is 
 alpha = - np.exp(mu + omega**2/2)
-print(alpha)
 
 average_price = []
 average_profit = []
@@ -57,6 +56,11 @@ for n in range(1, N+1, 1):
                                method='broyden2')
     optimal_price = res1.x
     print(optimal_price)
+    for i in range(0, n): 
+        if optimal_price[i] < c[i]:
+            optimal_price[i]=c[i]
+    print(optimal_price)
+    print(c)
     markup = firm.markup(optimal_price, c)
     share = firm.probability(optimal_price, alpha, X, beta)
     outside_good = 1 - sum(share)
