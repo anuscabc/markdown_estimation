@@ -24,6 +24,12 @@ def share(N_cons, J_prod, X_char, v_p, price, coef_car, mu, omega, e):
     shares = np.sum(prob, axis=1)
     return(shares)
 
+
+# Need to write some sort of function here to convince moraga that the continous function 
+# and the discrete function ultimately lead to the same sort of 
+# def discrete_share():
+#     return 
+
 def derivative(J_prod, mu, omega, v_p, shares):
     J = np.zeros((J_prod, J_prod))
     for i in range(J.shape[0]):
