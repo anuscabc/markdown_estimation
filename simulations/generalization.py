@@ -14,7 +14,7 @@ np.random.seed(seed)
 # All the parameters of interest 
 beta = np.array([2, -0.5, -0.3])
 mu = 0.5
-omega = 1
+omega = 1.
 
 # alpha = -np.exp(mu + omega**2/2)
 
