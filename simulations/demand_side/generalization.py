@@ -32,7 +32,7 @@ T = 100
 
 # The product characteritics
 X1 = np.random.uniform(5, 6, size=J)
-X2 = np.random.normal(3, 1, size=J)
+X2 = np.random.uniform(5, 6, size=J)
 all_X = np.column_stack((X1, X2))
 X0 = np.ones(J)
 X = np.column_stack((X0, all_X))
@@ -59,7 +59,7 @@ mean_cost = []
 a = 0.7
 b = -0.009
 
-c_max_scale = 2.
+c_max_scale = 1.5
 c_min_scale = 1.
 
 C = np.zeros((J, T))
@@ -74,31 +74,37 @@ C = (C - c_min) / (c_max - c_min) * (c_max_scale - c_min_scale) + c_min_scale
 
 # Making a for loop where the cost changes each period 
 for t in range (1, T): 
-    v_p = np.random.normal(0, 1, size = N)
-    e = np.random.gumbel(size=N*J)
+    v_p = np.random.normal(0, 1, size=N)
+    # v_p = np.zeros(N)
+    # e = np.random.gumbel(size=N*J)
+    e = 0.
     c = C[:, t]
-    res1 = scipy.optimize.root(firm_revised.root_objective, p, args=(N, J, X, v_p, beta, mu, omega, e, c),
-                            method='broyden2')
+
+    res1 = scipy.optimize.root(
+        firm_revised.root_objective, 
+        p, 
+        args=(N, J, X, v_p, beta, mu, omega, e, c),
+        method='broyden2'
+    )
     optimal_price = res1.x
-    for i in range(0, J):
-        if optimal_price[i] < c[i]:
-            optimal_price[i] = c[i]
-    for x in range(0, J): 
-        if optimal_price[x]> max_budget:
-            optimal_price[x] = max_budget   
-    shares = firm_revised.share(N, J, X, v_p, optimal_price, beta, mu, omega, e)
-    profits = firm_revised.profit(optimal_price, shares, c)
+
+    # for i in range(0, J):
+    #     if optimal_price[i] < c[i]:
+    #         optimal_price[i] = c[i]
+    # for x in range(0, J): 
+    #     if optimal_price[x] > max_budget:
+    #         optimal_price[x] = max_budget   
+
+    shares_per_firm, all_probs = firm_revised.share(N, J, X, v_p, optimal_price, beta, mu, omega, e)
+    print(1 - sum(shares_per_firm))
+    profits = firm_revised.profit(optimal_price, shares_per_firm, c)
     markups = firm_revised.markup(optimal_price, c)
-
-    print(1-sum(shares))
-
 
     list_prices.append(optimal_price)
     list_cost.append(c)
-    list_shares.append(shares)
+    list_shares.append(shares_per_firm)
     list_profit.append(profits)
     list_markup.append(markups)
-
 
 
 # Integrate the product characteristics from the other market 
@@ -116,14 +122,14 @@ print(f"This is the mean markup: {np.mean(markups1)}")
 print(f"This is the mean prifits: {np.mean(profits1)}")
 
 
-print(prices1.shape)
-print(cost1.shape)
-print(time.shape)
-print(Car1.shape)
-print(Car2.shape)
-print(shares1.shape)
-print(profits1.shape)
-print(markups1.shape)
+# print(prices1.shape)
+# print(cost1.shape)
+# print(time.shape)
+# print(Car1.shape)
+# print(Car2.shape)
+# print(shares1.shape)
+# print(profits1.shape)
+# print(markups1.shape)
 
 df = pd.DataFrame({'price': prices1,
                    'cost': cost1,
@@ -136,5 +142,4 @@ df = pd.DataFrame({'price': prices1,
                    'markups': markups1})
 df.to_csv(f'data/market_{seed}.csv', index=False)
 print(df)
-
 
