@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # import demand_data_simulation
 # import clean_data
 # import demand_data_estimation
-import firm
+import firm_revised
 
 # This can be the share data as defined in the simulation part i think 
 seed = 50
@@ -52,7 +52,7 @@ for n in range(1, N+1, 1):
     c = all_c[:n]
 
     # getting all the values of interest at the optimal price
-    res1 = scipy.optimize.root(firm.root_objective, p, args=(n, X, beta, alpha, c),
+    res1 = scipy.optimize.root(firm_revised.root_objective, p, args=(n, X, beta, alpha, c),
                                method='broyden2')
     optimal_price = res1.x
     print(optimal_price)

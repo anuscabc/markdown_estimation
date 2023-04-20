@@ -42,7 +42,6 @@ X = np.column_stack((X0, all_X))
 max_budget = 10
 p = np.zeros(J)
 
-
 # Need somewhere to store the costs and the prices 
 list_prices = []
 list_cost = []
@@ -53,7 +52,6 @@ list_profit = []
 # Get mean prices and costs
 mean_prices = []
 mean_cost = [] 
-
 
 # All of this here is for the integration of the cost 
 a = 0.7
@@ -76,7 +74,7 @@ C = (C - c_min) / (c_max - c_min) * (c_max_scale - c_min_scale) + c_min_scale
 for t in range (1, T): 
     v_p = np.random.normal(0, 1, size=N)
     # v_p = np.zeros(N)
-    # e = np.random.gumbel(size=N*J)
+    e = np.random.gumbel(size=N*J)
     e = 0.
     c = C[:, t]
 

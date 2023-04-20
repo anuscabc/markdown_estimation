@@ -29,7 +29,7 @@ def share(N_cons, J_prod, X_char, v_p, price, coef_car, mu, omega, e):
 # and the discrete function ultimately lead to the same sort of 
 # def discrete_share():
 #     return 
-
+  
 
 def construct_Jacobian(J_prod, mu, omega, v_p, all_probs):
 

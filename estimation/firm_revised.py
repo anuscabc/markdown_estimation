@@ -55,3 +55,6 @@ def root_objective(price, N_cons, J_prod, X_char, v_p, coef_car, mu, omega, e, c
     Jacobian = derivative(J_prod, mu, omega, v_p, shares) 
     optim = np.matmul(np.transpose(Jacobian), (price - c)) + shares
     return optim
+
+# All the functions for the production should also be here, the dataset should all be generated at the same time to have it all complete and in 
+# one place 
