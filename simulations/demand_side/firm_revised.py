@@ -21,7 +21,7 @@ def share(N_cons, J_prod, X_char, v_p, price, coef_car, mu, omega, e):
     u_r = np.reshape(u, (J_prod, N_cons))
     sum_u = np.sum(np.exp(u_r))
     all_probs = np.exp(u_r)/(1 +sum_u)
-    shares_per_firm = np.sum(all_probs, axis=1)
+    shares_per_firm = np.sum(all_probs, axis=1) 
     return shares_per_firm, all_probs
 
 
@@ -32,7 +32,6 @@ def share(N_cons, J_prod, X_char, v_p, price, coef_car, mu, omega, e):
   
 
 def construct_Jacobian(J_prod, mu, omega, v_p, all_probs):
-
     J = np.zeros((J_prod, J_prod))
     alphas = -np.exp(mu + omega * v_p)
     for i in range(J.shape[0]):
@@ -51,3 +50,4 @@ def root_objective(price, N_cons, J_prod, X_char, v_p, coef_car, mu, omega, e, c
     Jacobian = construct_Jacobian(J_prod, mu, omega, v_p, all_probs) 
     profit_FOC = np.matmul(np.transpose(Jacobian), (price - c)) + shares_per_firm
     return profit_FOC
+
