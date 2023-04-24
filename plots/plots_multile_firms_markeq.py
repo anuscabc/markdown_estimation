@@ -15,12 +15,12 @@ def visualize_marketeq_stability(seed):
     axs[2].set_title("Markup")
     axs[3].plot(df.outside_share, color='red')
     axs[3].set_title("Outside Good Share")
-    axs[4].plot(df.cost, color='yellow')
+    axs[4].plot(df.cost, color='lightblue')
     axs[4].set_title("Average Cost in Seed")
     fig.tight_layout()
 
     fig.savefig("plots/all.png")
 
 if __name__ == "__main__":
-    seed = 50
+    seed = 120
     visualize_marketeq_stability(seed)

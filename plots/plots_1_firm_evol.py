@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 def visualize_marketeq_stability(seed):
 
-    df = pd.read_csv(f'data/individual_{seed}.csv')
+    df = pd.read_csv(f'data/generalizatoin_{seed}.csv')
 
     fig, axs = plt.subplots(2, figsize=(6, 6))
     fig.suptitle(f'Market Equilibium Price Firm 1 {seed}')

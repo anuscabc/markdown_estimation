@@ -188,17 +188,11 @@ class IntegratedMarketModel:
         return productivity_shocks, capital, investments
     
     def save_simulation_data(self):
+
+        # This can be solved for later 
         self.products = np.tile(np.array(range(1, J+1)), T-1)
         self.time = np.repeat(np.array(range(1, T)), J)
 
     def __str__(self) -> str:
         return f"Market with {self.n_firms} firms and {self.n_consumers} consumers."
 
-
-
-n_firms = 5
-n_consumers = 5
-market = Market(n_firms, n_consumers)
-market.say_yeet()
-
-print(Firm.cost(3, 4))

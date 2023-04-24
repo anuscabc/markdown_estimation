@@ -31,8 +31,9 @@ N = 500
 T = 100
 
 # The product characteritics
-X1 = np.random.uniform(5, 6, size=J)
-X2 = np.random.normal(5, 6, size=J)
+X1 = np.random.uniform(1, 50, size=J)
+X2 = X1
+# X2 = np.random.uniform(1, 10, size=J)
 all_X = np.column_stack((X1, X2))
 X0 = np.ones(J)
 X = np.column_stack((X0, all_X))
@@ -52,28 +53,11 @@ list_profit = []
 # Get mean prices and costs
 mean_prices = []
 mean_cost = [] 
-
-# All of this here is for the integration of the cost 
-a = 0.7
-b = -0.009
-
-c_max_scale = 1.5
-c_min_scale = 1.
-
-C = np.zeros((J, T))
-for t in range(1, T):
-
-    C[:, t] = b * t + a * C[:, t-1] + np.random.normal(0, 0.5, size=J)
-# c_max = np.tile(np.array([np.amax(C, axis=1)]).T, (1, T))
-# c_min = np.tile(np.array([np.amin(C, axis=1)]).T, (1, T))
-c_max = np.max(C)
-c_min = np.min(C)
-
-C = (C - c_min) / (c_max - c_min) * (c_max_scale - c_min_scale) + c_min_scale
+mean_vp = []
 
 
-print(C[:, 1])
 
+C = np.zeros((J, T))+ 3
 
 
 
@@ -83,6 +67,8 @@ for t in range (1, T):
     e = 0.
     c = C[:, t]
     v_p = np.random.normal(0, 1, size=N)
+
+
     res1 = scipy.optimize.root(
         firm_revised.root_objective, 
         p, 
@@ -101,6 +87,7 @@ for t in range (1, T):
     list_shares.append(shares_per_firm)
     list_profit.append(profits)
     list_markup.append(markups)
+    mean_vp.append(np.mean(v_p))
 
 
 # Integrate the product characteristics from the other market 
@@ -113,18 +100,12 @@ products = np.tile(np.array(range(1, J+1)), T-1)
 time = np.repeat(np.array(range(1, T)), J)
 Car1 = np.tile(X1, T-1)
 Car2 = np.tile(X2, T-1)
+shocks = np.repeat(np.array(mean_vp), J)
 
-print(prices1.shape)
-print(cost1.shape)
-print(time.shape)
-print(Car1.shape)
-print(Car2.shape)
-print(shares1.shape)
-print(profits1.shape)
-print(markups1.shape)
+print(shocks.shape)
 
 print(f"This is the mean markup: {np.mean(markups1)}")
-print(f"This is the mean prifits: {np.mean(profits1)}")
+print(f"This is the mean profits: {np.mean(profits1)}")
 
 
 
@@ -138,7 +119,7 @@ df = pd.DataFrame({'price': prices1,
                    'mshare':shares1, 
                    'profits':profits1, 
                    'markups': markups1, 
+                   'shocks': shocks
                    })
-df.to_csv(f'data/market_{seed}.csv', index=False)
+df.to_csv(f'data/market_constant_cost{seed}.csv', index=False)
 print(df)
-
