@@ -197,13 +197,9 @@ class IntegratedMarketModel:
         return (self.delta + self.gamma*productivity)*capital
     
     def compute_labor(self):
-        # print(self.capital)
-        # print(self.productivity_shocks)
-        # print(self.wage)
         self.labor = (self.wage/(self.xi_L*self.capital**self.xi_K*
                       np.exp(self.xi_0 + self.productivity_shocks)*
                       self.prices))**(1/(self.xi_L-1))
-        print(self.labor)
     
     def capital_formation(self, capital, investment):
         return (1-self.delta)*capital + investment
@@ -232,10 +228,69 @@ class IntegratedMarketModel:
         return productivity_shocks, capital, investments
     
     def save_simulation_data(self):
+        
+        # This is such that data nicely stored
+        time1 = np.reshape(np.repeat(np.array(range(1, self.T+1)), self.n_firms), (self.n_firms*self.T, 1))
+        products1 = np.reshape(np.tile(np.array(range(1, self.n_firms+1)), self.T), (self.n_firms*self.T, 1))
+        characteristic_1 = np.reshape(np.tile(self.produc_chars[:,1], self.T), (self.n_firms*self.T, 1))
+        characteristic_2 = np.reshape(np.tile(self.produc_chars[:,2], self.T), (self.n_firms*self.T, 1))
+        
+        # All the data from the demand side 
+        # prices1 = np.reshape(self.prices.T, (self.prices.size, 1))
+        prices1 = self.prices.T.flatten()
+        costs1 = self.costs.T.flatten()
+        market_share1 = self.market_shares.T.flatten()
+        profits1 = self.profits.T.flatten()
+        markups1 = self.markups.T.flatten()
 
-        # This can be solved for later 
-        self.products = np.tile(np.array(range(1, self.n_firms+1)), self.T-1)
-        self.time = np.repeat(np.array(range(1, self.T)), J)
+        # Quantity/market equilibiurm data
+        quantity = self.n_consumers * market_share1
+
+        # All the data from the supply side 
+        capital1 =  self.capital.T.flatten()
+        investment1 =  self.investments.T.flatten()
+        productivity1 = self.productivity_shocks.T.flatten()
+        labor1 = self.labor.T.flatten()
+
+
+        # All of these have to then be put in a large simulation function 
+        print(time1.shape)
+        print(products1.shape)
+
+        print(characteristic_1.shape)
+        print(characteristic_2.shape)
+
+        print(prices1.shape)
+        print(costs1.shape)
+        print(market_share1.shape)
+
+        print(capital1.shape)
+        print(investment1.shape)
+        print(productivity1.shape)
+        print(labor1.shape)
+
+
+
+        # Generate the dataframe with all the information
+        df_simulation = pd.DataFrame({'time': time1.T[0],
+                                    'product':products1.T[0],
+                                    'characteristic1':characteristic_1.T[0], 
+                                    'characteristic2':characteristic_2.T[0], 
+                                    'price':prices1, 
+                                    'marginal_cost':costs1,
+                                    'mshare':market_share1, 
+                                    'profits':profits1, 
+                                    'markups':markups1,
+                                    'e_quantity':quantity,
+                                    'capital':capital1,
+                                    'investment':investment1,
+                                    'productivity':productivity1,
+                                    'labor':labor1
+                                    })
+        df_simulation.to_csv(f'data/market_integrates_{100}.csv', index=False)
+        print(df_simulation)
+
+
 
     def __str__(self) -> str:
         return f"Market with {self.n_firms} firms and {self.n_consumers} consumers."
