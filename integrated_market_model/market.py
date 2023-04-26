@@ -196,10 +196,15 @@ class IntegratedMarketModel:
     def compute_investment(self, productivity, capital):
         return (self.delta + self.gamma*productivity)*capital
     
+    # def compute_labor(self):
+    #     self.labor = (self.wage/(self.xi_L*self.capital**self.xi_K*
+    #                   np.exp(self.xi_0 + self.productivity_shocks)*
+    #                   self.prices))**(1/(self.xi_L-1))
+        
     def compute_labor(self):
-        self.labor = (self.wage/(self.xi_L*self.capital**self.xi_K*
-                      np.exp(self.xi_0 + self.productivity_shocks)*
-                      self.prices))**(1/(self.xi_L-1))
+        self.labor = ((self.n_consumers* self.market_shares)/(self.capital**self.xi_K*
+                                                              np.exp(self.xi_0 + self.productivity_shocks)
+                                                              ))**(1/self.xi_L)
     
     def capital_formation(self, capital, investment):
         return (1-self.delta)*capital + investment
