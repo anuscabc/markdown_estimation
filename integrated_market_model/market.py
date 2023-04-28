@@ -140,6 +140,11 @@ class IntegratedMarketModel:
     def compute_markup(self, t): 
         self.markups[:,t] = (self.prices[:,t] - self.costs[:,t])/self.costs[:,t]
 
+    # def compute_markup(self, t):
+    #     self.markups[:,t] = self.prices[:,t]/self.costs[:,t]
+
+
+
     def compute_share(self, v_p, price, e):
         """_summary_
 
