@@ -15,17 +15,17 @@ class IntegratedMarketModel:
             beta=np.array([2, -0.5, -0.3]),
             mu:float=0.5, 
             omega:float=1.,
-            alpha:float=0.7,
+            alpha:float=0.2,
             delta:float=0.05,
             gamma:float=0.1, 
             mean_productivity:float=1.,
-            std_productivity:float=.1,
+            std_productivity:float=.05,
             mean_capital:float=1.,
-            std_capital:float=0.5,
+            std_capital:float=0.1,
             xi_0:float=1.,
             xi_L:float=0.3,
             xi_K:float=0.7,
-            wage:float=0.5,
+            wage:float=0.02,
             seed:int=100
         ):
 
@@ -62,6 +62,7 @@ class IntegratedMarketModel:
         self.market_shares = np.zeros((self.n_firms, self.T))
         self.profits = np.zeros((self.n_firms, self.T))
         self.markups = np.zeros((self.n_firms, self.T))
+        self.v_p = np.random.normal(0, 1, (self.n_consumers, self.T))
 
         # Randomly generate stochastic elements
         self.produc_chars = self.gen_product_chars()
@@ -69,7 +70,8 @@ class IntegratedMarketModel:
         self.productivity_shocks = productivity_shocks
         self.capital = capital
         self.investments = investments
-        self.labor = np.zeros((self.n_firms, T))
+        self.labor_quantity = np.zeros((self.n_firms, T))
+        self.labor_optimal = np.zeros((self.n_firms, T))
 
     def demand_side_optimisation(self):
         """Making a for loop where the cost changes each period"""
@@ -77,18 +79,17 @@ class IntegratedMarketModel:
         for t in range (self.T): 
 
             # Generate random shocks
-            v_p = np.random.normal(0, 1, size=self.n_consumers)
+            v_p_r = self.v_p[:,t]
             e = 0.
-
             res1 = scipy.optimize.root(
                 self.root_objective, 
                 self.prices_0, 
-                args=(v_p, e, t),
-                method='broyden2'
+                args=(v_p_r, e, t),
+                method='broyden2',
             )
             self.prices[:,t] = res1.x
 
-            market_shares, _ = self.compute_share(v_p, self.prices[:,t], e)
+            market_shares, _ = self.compute_share(v_p_r, self.prices[:,t], e)
             self.market_shares[:,t] = market_shares
             self.costs[:,t] = self.compute_marginal_cost(market_shares, t)
 
@@ -96,7 +97,8 @@ class IntegratedMarketModel:
             self.compute_profit(t)
             self.compute_markup(t)
 
-        self.compute_labor()
+        self.compute_labor_from_optimal()
+        self.compute_labor_from_quantity()
 
     def root_objective(self, price, v_p, e, t):
         """_summary_
@@ -188,7 +190,8 @@ class IntegratedMarketModel:
     def gen_product_chars(self):
         """Generates product characteristics"""
         X1 = np.random.uniform(5, 6, size=self.n_firms)
-        X2 = np.random.uniform(5, 6, size=self.n_firms)
+        # X2 = np.random.uniform(5, 6, size=self.n_firms)
+        X2 = X1
         all_X = np.column_stack((X1, X2))
         X0 = np.ones(self.n_firms)
         return np.column_stack((X0, all_X))
@@ -196,13 +199,13 @@ class IntegratedMarketModel:
     def compute_investment(self, productivity, capital):
         return (self.delta + self.gamma*productivity)*capital
     
-    # def compute_labor(self):
-    #     self.labor = (self.wage/(self.xi_L*self.capital**self.xi_K*
-    #                   np.exp(self.xi_0 + self.productivity_shocks)*
-    #                   self.prices))**(1/(self.xi_L-1))
+    def compute_labor_from_optimal(self):
+        self.labor_optimal = (self.wage/(self.xi_L*self.capital**self.xi_K*
+                      np.exp(self.xi_0 + self.productivity_shocks)*
+                      self.prices))**(1/(self.xi_L-1))
         
-    def compute_labor(self):
-        self.labor = ((self.n_consumers* self.market_shares)/(self.capital**self.xi_K*
+    def compute_labor_from_quantity(self):
+        self.labor_quantity = ((self.n_consumers* self.market_shares)/(self.capital**self.xi_K*
                                                               np.exp(self.xi_0 + self.productivity_shocks)
                                                               ))**(1/self.xi_L)
     
@@ -255,24 +258,12 @@ class IntegratedMarketModel:
         capital1 =  self.capital.T.flatten()
         investment1 =  self.investments.T.flatten()
         productivity1 = self.productivity_shocks.T.flatten()
-        labor1 = self.labor.T.flatten()
+        labor1_quantity = self.labor_quantity.T.flatten()
+        labor1_optimal = self.labor_optimal.T.flatten()
 
+        markup_production_o = self.xi_L*((prices1*quantity)/(self.wage*labor1_optimal))-1
+        markup_production_q = self.xi_L*((prices1*quantity)/(self.wage*labor1_quantity))-1
 
-        # All of these have to then be put in a large simulation function 
-        print(time1.shape)
-        print(products1.shape)
-
-        print(characteristic_1.shape)
-        print(characteristic_2.shape)
-
-        print(prices1.shape)
-        print(costs1.shape)
-        print(market_share1.shape)
-
-        print(capital1.shape)
-        print(investment1.shape)
-        print(productivity1.shape)
-        print(labor1.shape)
 
 
 
@@ -290,13 +281,18 @@ class IntegratedMarketModel:
                                     'capital':capital1,
                                     'investment':investment1,
                                     'productivity':productivity1,
-                                    'labor':labor1
+                                    'labor_q':labor1_quantity, 
+                                    'labor_o':labor1_optimal, 
+                                    'mu_o':markup_production_o, 
+                                    'mu_q':markup_production_q
                                     })
         df_simulation.to_csv(f'data/market_integrates_{100}.csv', index=False)
         print(df_simulation)
 
 
+    # def simulation_data_per_consumer(self):
 
     def __str__(self) -> str:
         return f"Market with {self.n_firms} firms and {self.n_consumers} consumers."
+    
 
