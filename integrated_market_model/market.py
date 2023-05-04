@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 class IntegratedMarketModel:
     # definition of the method also with stype checking 
+    """_summary_
+    """
     def __init__(
             self, 
             n_firms:int, 
@@ -18,14 +20,14 @@ class IntegratedMarketModel:
             alpha:float=0.2,
             delta:float=0.05,
             gamma:float=0.1, 
-            mean_productivity:float=1.,
+            mean_productivity:float=0,
             std_productivity:float=.05,
-            mean_capital:float=1.,
+            mean_capital:float=10.,
             std_capital:float=0.1,
-            xi_0:float=1.,
-            xi_L:float=0.3,
-            xi_K:float=0.7,
-            wage:float=0.02,
+            theta_0:float=1.,
+            theta_L:float=0.3,
+            theta_K:float=0.7,
+            wage:float=0.5,
             seed:int=100
         ):
 
@@ -49,9 +51,9 @@ class IntegratedMarketModel:
         self.std_productivity = std_productivity
         self.mean_capital = mean_capital
         self.std_capital = std_capital
-        self.xi_0 = xi_0
-        self.xi_L = xi_L
-        self.xi_K = xi_K
+        self.theta_0 = theta_0
+        self.theta_L = theta_L
+        self.theta_K = theta_K
         self.wage = wage
 
         self.prices_0 = np.ones(self.n_firms)
@@ -59,6 +61,7 @@ class IntegratedMarketModel:
         # Data structures for simulation data
         self.prices = np.zeros((self.n_firms, self.T))
         self.costs = np.zeros((self.n_firms, self.T))
+
         self.market_shares = np.zeros((self.n_firms, self.T))
         self.profits = np.zeros((self.n_firms, self.T))
         self.markups = np.zeros((self.n_firms, self.T))
@@ -66,15 +69,23 @@ class IntegratedMarketModel:
 
         # Randomly generate stochastic elements
         self.produc_chars = self.gen_product_chars()
+        # self.random_demand_shock = self.gen_random_demand_shock()
+
+
+        # Supply side data
+        # self.productivity_shocks = np.zeros((self.n_firms, self.T))+ 1
+        # self.capital = np.zeros((self.n_firms, self.T)) + 1
+        # self.investments = np.zeros((self.n_firms, self.T)) + 1
+
         productivity_shocks, capital, investments = self.gen_productivity_capital_investments()
         self.productivity_shocks = productivity_shocks
         self.capital = capital
         self.investments = investments
+
         self.labor_quantity = np.zeros((self.n_firms, T))
-        self.labor_optimal = np.zeros((self.n_firms, T))
 
     def demand_side_optimisation(self):
-        """Making a for loop where the cost changes each period"""
+        """ The prices are going to be optimally set in each given period """
 
         for t in range (self.T): 
 
@@ -97,20 +108,20 @@ class IntegratedMarketModel:
             self.compute_profit(t)
             self.compute_markup(t)
 
-        self.compute_labor_from_optimal()
         self.compute_labor_from_quantity()
 
     def root_objective(self, price, v_p, e, t):
-        """_summary_
+        """ The function is the first order condition of the 
+        profif maximization problem of the firm
 
         Args:
-            price (_type_): _description_
-            v_p (_type_): _description_
-            e (_type_): _description_
-            t (_type_): _description_
+            price (_float_): the price in each period - the value to be optimized
+            v_p (_type_): random consumer specific demand shocks 
+            e (_type_): the type 1 extreme value distributed error term 
+            t (_type_): the time period for the optimization
 
         Returns:
-            _type_: _description_
+            _float_: the profit first order condition that needs to be null
         """
         market_shares, all_probs = self.compute_share(v_p, price, e)
         cost = self.compute_marginal_cost(market_shares, t)
@@ -119,42 +130,53 @@ class IntegratedMarketModel:
         return profit_FOC
 
     def compute_marginal_cost(self, market_shares, t):
-        """_summary_
+        """ Function to compute the marginal cost as a function of the 
+        equilibiurm quantity produced in the market in each time period
 
         Args:
-            market_shares (_type_): _description_
-            t (_type_): _description_
+            market_shares (_float_): the market shares for that one particular period 
+            t (_int_): the time period for which the cost has to be computed 
 
         Returns:
-            _type_: _description_
+            _float_: the marginal cost for the time period t 
         """
-        MC = (self.wage*(1/self.xi_L) *(self.n_consumers * market_shares/(np.exp(self.xi_0 + self.productivity_shocks[:,t])*
-              self.capital[:,t]**self.xi_K))**((1-self.xi_L)/self.xi_L) *
-              (1/np.exp(self.xi_0 + self.productivity_shocks[:,t])*
-              self.capital[:,t]**self.xi_K))
+        MC = (self.wage*(1/self.theta_L)*(self.n_consumers * market_shares/(np.exp(self.theta_0 + self.productivity_shocks[:,t])*
+              self.capital[:,t]**self.theta_K))**((1-self.theta_L)/self.theta_L) *
+              (1/np.exp(self.theta_0 + self.productivity_shocks[:,t])*
+              self.capital[:,t]**self.theta_K))
         return MC
 
     def compute_profit(self, t):
+        """Funtion to compute profit 
+
+        Args:
+            t (_type_): the time period for which to compute the profit
+        """
         self.profits[:,t] = self.market_shares[:,t]*(self.prices[:,t] - self.costs[:,t])
 
-    def compute_markup(self, t): 
-        self.markups[:,t] = (self.prices[:,t] - self.costs[:,t])/self.costs[:,t]
 
-    # def compute_markup(self, t):
-    #     self.markups[:,t] = self.prices[:,t]/self.costs[:,t]
+    def compute_markup(self, t):
+        """Demand side markup - as in De Loeker 
+
+        Args:
+            t (_type_): the period for which to cpmpute the markup
+        """
+        self.markups[:,t] = self.prices[:,t]/self.costs[:,t]
 
 
 
     def compute_share(self, v_p, price, e):
-        """_summary_
+        """Formula for computing the market share based on the multinomial 
+        logir probability"
 
         Args:
-            v_p (_type_): _description_
-            price (_type_): _description_
-            e (_type_): _description_
+            v_p (_float_): random consumer specific demand shock
+            price (_type_): the optimla price in the fiven time period
+            e (_type_): the type I extreme value error term
 
         Returns:
-            _type_: _description_
+            float, float : The value of the market share and the individual 
+            probabilities of purchasing a product
         """
         X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
         price_r = np.reshape(price, (1, self.n_firms))
@@ -171,14 +193,15 @@ class IntegratedMarketModel:
         return market_shares, all_probs
 
     def construct_Jacobian(self, all_probs, v_p):
-        """_summary_
+        """ Formulas for the matrix of first order conditions of market
+        shares with respect to prices 
 
         Args:
-            v_p (_type_): _description_
-            all_probs (_type_): _description_
+            v_p (_type_): random consumer demand shocks
+            all_probs (_type_): the probability a consumer i buy a product j 
 
         Returns:
-            _type_: _description_
+            floar matrix : the Jacobian matrix of shares with respect to prices 
         """
         J = np.zeros((self.n_firms, self.n_firms))
         alphas = -np.exp(self.mu + self.omega * v_p)
@@ -201,21 +224,39 @@ class IntegratedMarketModel:
         X0 = np.ones(self.n_firms)
         return np.column_stack((X0, all_X))
     
+    
     def compute_investment(self, productivity, capital):
+        """Generate optimal amount of investment for a given period 
+        as a result of the capital and productivity evolution
+
+        Args:
+            productivity (_float_): the random productivity shock in that period 
+            capital (_float_): capital in that period
+
+        Returns:
+            _float_: investment level in the period
+        """
         return (self.delta + self.gamma*productivity)*capital
     
-    def compute_labor_from_optimal(self):
-        self.labor_optimal = (self.wage/(self.xi_L*self.capital**self.xi_K*
-                      np.exp(self.xi_0 + self.productivity_shocks)*
-                      self.prices))**(1/(self.xi_L-1))
+    def capital_formation(self, capital, investment):
+        """Capital formation over time 
+
+        Args:
+            capital (float): capital in the previous period
+            investment (float): investment in the previous period
+
+        Returns:
+            float : capital in the next period 
+        """
+        return (1-self.delta)*capital + investment
+    
         
     def compute_labor_from_quantity(self):
-        self.labor_quantity = ((self.n_consumers* self.market_shares)/(self.capital**self.xi_K*
-                                                              np.exp(self.xi_0 + self.productivity_shocks)
-                                                              ))**(1/self.xi_L)
+        self.labor_quantity = ((self.n_consumers* self.market_shares)/(self.capital**self.theta_K*
+                                                              np.exp(self.theta_0 + self.productivity_shocks)
+                                                              ))**(1/self.theta_L)
     
-    def capital_formation(self, capital, investment):
-        return (1-self.delta)*capital + investment
+
 
     def gen_productivity_capital_investments(self):
         """_summary_
@@ -234,7 +275,7 @@ class IntegratedMarketModel:
 
         for t in range(1, self.T):
             productivity_shocks[:, t] = (self.alpha * productivity_shocks[:, t-1] 
-                                         + np.random.normal(0, 0.1, size=self.n_firms))
+                                         + np.random.normal(0, 0.05, size=self.n_firms))
             capital[:, t] = self.capital_formation(capital[:,t-1], investments[:,t-1])
             investments[:, t] = self.compute_investment(productivity_shocks[:, t], capital[:, t])
 
@@ -264,11 +305,6 @@ class IntegratedMarketModel:
         investment1 =  self.investments.T.flatten()
         productivity1 = self.productivity_shocks.T.flatten()
         labor1_quantity = self.labor_quantity.T.flatten()
-        labor1_optimal = self.labor_optimal.T.flatten()
-
-        markup_production_o = self.xi_L*((prices1*quantity)/(self.wage*labor1_optimal))-1
-        markup_production_q = self.xi_L*((prices1*quantity)/(self.wage*labor1_quantity))-1
-
 
 
 
@@ -286,10 +322,7 @@ class IntegratedMarketModel:
                                     'capital':capital1,
                                     'investment':investment1,
                                     'productivity':productivity1,
-                                    'labor_q':labor1_quantity, 
-                                    'labor_o':labor1_optimal, 
-                                    'mu_o':markup_production_o, 
-                                    'mu_q':markup_production_q
+                                    'labor':labor1_quantity, 
                                     })
         df_simulation.to_csv(f'data/market_integrates_{100}.csv', index=False)
         print(df_simulation)
