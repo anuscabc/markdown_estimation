@@ -17,9 +17,9 @@ class IntegratedMarketModel:
             beta=np.array([2, -0.5, -0.3]),
             mu:float=0.5, 
             omega:float=1.,
-            alpha:float=0.2,
+            alpha:float=0.7,
             delta:float=0.05,
-            gamma:float=0.1, 
+            gamma:float=0.7, 
             mean_productivity:float=0,
             std_productivity:float=.05,
             mean_capital:float=10.,
@@ -156,10 +156,10 @@ class IntegratedMarketModel:
 
 
     def compute_markup(self, t):
-        """Demand side markup - as in De Loeker 
+        """Demand side markup - as in De Loeker p-c/c 
 
         Args:
-            t (_type_): the period for which to cpmpute the markup
+            t (_type_): the period for which to compute the markup
         """
         self.markups[:,t] = self.prices[:,t]/self.costs[:,t]
 
