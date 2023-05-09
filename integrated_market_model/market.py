@@ -272,7 +272,10 @@ class IntegratedMarketModel:
         # Getting the first period initialization
         # There needs to be some sort of initialization for omega and capital 
         productivity_shocks[:,0] = np.random.normal(self.mean_productivity, self.std_productivity, self.n_firms)
-        capital[:, 0] = np.random.normal(self.mean_capital, self.std_capital, self.n_firms)
+        # productivity_shocks[:,0] = np.random.uniform(10, 30, self.n_firms)
+
+        # capital[:, 0] = np.random.normal(self.mean_capital, self.std_capital, self.n_firms)
+        capital[:, 0] = np.random.uniform(10, 30, self.n_firms)
         investments[:, 0] = self.compute_investment(productivity_shocks[:, 0], capital[:, 0])
 
         for t in range(1, self.T):
