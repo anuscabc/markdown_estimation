@@ -214,7 +214,7 @@ class IntegratedMarketModel:
         """Generates product characteristics"""
         X1 = np.random.uniform(5, 6, size=self.n_firms)
         # X2 = np.random.uniform(0, 0, size=self.n_firms)
-        X2 = np.random.uniform(2, 3, size=self.n_firms)
+        X2 = np.random.uniform(20, 21, size=self.n_firms)
         # X2 = X1
         # X1 = np.array([1., 1., 1., 1., 20., 20., 20., 20., 20., 20.])
         # X2 = np.array([5., 5., 5., 5., 5., 4., 4., 4., 4., 4.])
