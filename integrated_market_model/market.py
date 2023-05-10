@@ -30,7 +30,9 @@ class IntegratedMarketModel:
             wage:float=0.5,
             seed:int=100
         ):
-        np.random.seed(seed)
+
+        self.seed = seed
+        np.random.seed(self.seed)
 
         self.n_firms = n_firms
         self.n_consumers = n_consumers
@@ -313,8 +315,6 @@ class IntegratedMarketModel:
         productivity1 = self.productivity_shocks.T.flatten()
         labor1_quantity = self.labor_quantity.T.flatten()
 
-
-
         # Generate the dataframe with all the information
         df_simulation = pd.DataFrame({'market_ids': time1.T[0],
                                     'firm_ids':products1.T[0],
@@ -331,7 +331,7 @@ class IntegratedMarketModel:
                                     'productivity':productivity1,
                                     'labor':labor1_quantity, 
                                     })
-        df_simulation.to_csv(f'data/market_integrates_{100}.csv', index=False)
+        df_simulation.to_csv(f'data/market_integrates_{self.seed}.csv', index=False)
         print(df_simulation)
 
 

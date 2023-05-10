@@ -47,7 +47,7 @@ def simulate_market_shares_per_period(theta, df, v_p, n_consumers, n_firms, t):
     return market_shares
 
 
-def get_indirect_utility(theta, df, n_consumers, n_firms, t):
+def get_indirect_utility(theta, df, n_firms, t):
     """_summary_
 
     Args:
