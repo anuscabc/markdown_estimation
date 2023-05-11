@@ -1,11 +1,12 @@
 from market import IntegratedMarketModel
 
-def single_simulation(n_firms, n_consumers, n_chars, T):
+def single_simulation(n_firms, n_consumers, n_chars, T, s):
     model = IntegratedMarketModel(
         n_firms, 
         n_consumers, 
         n_chars, 
-        T
+        T, 
+        seed=s
     )
     model.demand_side_optimisation()
     model.save_simulation_data()
@@ -16,4 +17,7 @@ if __name__ == "__main__":
     n_consumers = 500
     n_chars = 2
     T = 100
-    single_simulation(n_firms, n_consumers, n_chars, T)
+    s = 1
+    # for s in range(1, 10, 1):
+    #     single_simulation(n_firms, n_consumers, n_chars, T, s)
+    single_simulation(n_firms, n_consumers, n_chars, T, s)

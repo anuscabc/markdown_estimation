@@ -19,7 +19,7 @@ class IntegratedMarketModel:
             omega:float=1.,
             alpha:float=0.7,
             delta:float=0.05,
-            gamma:float=0.7, 
+            gamma:float=0.1, 
             mean_productivity:float=0,
             std_productivity:float=0.05,
             mean_capital:float=10.,
@@ -162,6 +162,33 @@ class IntegratedMarketModel:
 
 
 
+    # def compute_share(self, v_p, price, e):
+    #     """Formula for computing the market share based on the multinomial 
+    #     logit probability"
+
+    #     Args:
+    #         v_p (float): random consumer specific demand shock
+    #         price (float): the optimal price in the fiven time period
+    #         e (float): the type I extreme value error term
+
+    #     Returns:
+    #         float, float : The value of the market share and the individual 
+    #         probabilities of purchasing a product
+    #     """
+    #     X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
+    #     price_r = np.reshape(price, (1, self.n_firms))
+    #     alpha_i = np.reshape(-(np.exp(self.mu + self.omega*v_p)), (self.n_consumers, 1))
+    #     random_coeff = np.ravel((alpha_i*price_r).T)
+
+    #     u = X_for_utility@self.beta + random_coeff + e
+    #     u_r = np.reshape(u, (self.n_firms, self.n_consumers))
+    #     sum_u = np.sum(np.exp(u_r))
+
+    #     all_probs = np.exp(u_r)/(1 + sum_u)
+    #     market_shares = np.sum(all_probs, axis=1)
+
+    #     return market_shares, all_probs
+
     def compute_share(self, v_p, price, e):
         """Formula for computing the market share based on the multinomial 
         logit probability"
@@ -175,12 +202,18 @@ class IntegratedMarketModel:
             float, float : The value of the market share and the individual 
             probabilities of purchasing a product
         """
-        X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
+
+        # X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
         price_r = np.reshape(price, (1, self.n_firms))
-        alpha_i = np.reshape(-(np.exp(self.mu + self.omega*v_p)), (self.n_consumers, 1))
+        alpha_0 = -np.exp(self.mu + self.omega**2/2)
+        mean_indirect_utility = self.produc_chars@self.beta + alpha_0*price
+        mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
+
+        alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + self.omega**2/2)), (self.n_consumers, 1))
         random_coeff = np.ravel((alpha_i*price_r).T)
 
-        u = X_for_utility@self.beta + random_coeff + e
+        u = mean_indirect_utlity_for_utility + random_coeff + e
+        
         u_r = np.reshape(u, (self.n_firms, self.n_consumers))
         sum_u = np.sum(np.exp(u_r))
 
