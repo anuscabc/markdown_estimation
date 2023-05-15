@@ -64,6 +64,7 @@ class IntegratedMarketModel:
         self.prices = np.zeros((self.n_firms, self.T))
         self.costs = np.zeros((self.n_firms, self.T))
         self.market_shares = np.zeros((self.n_firms, self.T))
+        self.mean_indirect_utilities = np.zeros((self.n_firms, self.T))
         self.profits = np.zeros((self.n_firms, self.T))
         self.markups = np.zeros((self.n_firms, self.T))
 
@@ -97,7 +98,8 @@ class IntegratedMarketModel:
             )
             self.prices[:,t] = res1.x
 
-            market_shares, _ = self.compute_share(v_p_r, self.prices[:,t], e)
+            market_shares, probabilities, mean_indirect_util = self.compute_share(v_p_r, self.prices[:,t], e)
+            self.mean_indirect_utilities[:,t] = mean_indirect_util
             self.market_shares[:,t] = market_shares
             self.costs[:,t] = self.compute_marginal_cost(market_shares, t)
 
@@ -120,7 +122,7 @@ class IntegratedMarketModel:
         Returns:
             float: the profit first order condition that needs to be null
         """
-        market_shares, all_probs = self.compute_share(v_p, price, e)
+        market_shares, all_probs, mean_indirect_utility = self.compute_share(v_p, price, e)
         cost = self.compute_marginal_cost(market_shares, t)
         Jacobian = self.construct_Jacobian(all_probs, v_p) 
         profit_FOC = np.matmul(np.transpose(Jacobian), (price - cost)) + market_shares
@@ -202,33 +204,23 @@ class IntegratedMarketModel:
             float, float : The value of the market share and the individual 
             probabilities of purchasing a product
         """
-
-        # X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
-
+        # The mean direct utility values
         price_r = np.reshape(price, (1, self.n_firms))
-        alpha_0 = -np.exp(self.mu + self.omega**2/2)
+        alpha_0 = -np.exp(self.mu + (self.omega**2)/2)
         mean_indirect_utility = self.produc_chars@self.beta + alpha_0*price
         mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
 
-        alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + self.omega**2/2)), (self.n_consumers, 1))
+        alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega**2)/2)), (self.n_consumers, 1))
         random_coeff = np.ravel((alpha_i*price_r).T)
 
         u = mean_indirect_utlity_for_utility + random_coeff + e
-
-        # X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
-        # price_r = np.reshape(price, (1, self.n_firms))
-        # alpha_i = np.reshape(-(np.exp(self.mu + self.omega*v_p)), (self.n_consumers, 1))
-        # random_coeff = np.ravel((alpha_i*price_r).T)
-
-        # u = X_for_utility@self.beta + random_coeff + e
-        
         u_r = np.reshape(u, (self.n_firms, self.n_consumers))
         sum_u = np.sum(np.exp(u_r))
 
         all_probs = np.exp(u_r)/(1 + sum_u)
         market_shares = np.sum(all_probs, axis=1)
 
-        return market_shares, all_probs
+        return market_shares, all_probs, mean_indirect_utility
 
     def construct_Jacobian(self, all_probs, v_p):
         """ Formulas for the matrix of first order conditions of market
@@ -344,6 +336,8 @@ class IntegratedMarketModel:
         prices1 = self.prices.T.flatten()
         costs1 = self.costs.T.flatten()
         market_share1 = self.market_shares.T.flatten()
+        mean_indirect_uti1 = self.mean_indirect_utilities.T.flatten()
+
         profits1 = self.profits.T.flatten()
         markups1 = self.markups.T.flatten()
 
@@ -371,6 +365,7 @@ class IntegratedMarketModel:
                                     'investment':investment1,
                                     'productivity':productivity1,
                                     'labor':labor1_quantity, 
+                                    'indirect_util':mean_indirect_uti1
                                     })
         df_simulation.to_csv(f'data/market_integrates_{self.seed}.csv', index=False)
         print(df_simulation)
