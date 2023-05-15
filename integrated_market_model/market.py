@@ -204,6 +204,7 @@ class IntegratedMarketModel:
         """
 
         # X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
+
         price_r = np.reshape(price, (1, self.n_firms))
         alpha_0 = -np.exp(self.mu + self.omega**2/2)
         mean_indirect_utility = self.produc_chars@self.beta + alpha_0*price
@@ -213,6 +214,13 @@ class IntegratedMarketModel:
         random_coeff = np.ravel((alpha_i*price_r).T)
 
         u = mean_indirect_utlity_for_utility + random_coeff + e
+
+        # X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
+        # price_r = np.reshape(price, (1, self.n_firms))
+        # alpha_i = np.reshape(-(np.exp(self.mu + self.omega*v_p)), (self.n_consumers, 1))
+        # random_coeff = np.ravel((alpha_i*price_r).T)
+
+        # u = X_for_utility@self.beta + random_coeff + e
         
         u_r = np.reshape(u, (self.n_firms, self.n_consumers))
         sum_u = np.sum(np.exp(u_r))

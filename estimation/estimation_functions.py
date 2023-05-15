@@ -34,14 +34,24 @@ def simulate_market_shares_per_period(theta, df, v_p, n_consumers, n_firms, t):
 
 
     price_r = np.reshape(np.array(df.prices[t*n_firms:(t+1)*n_firms]), (1, n_firms))
+    # price_r = np.reshape(np.array(df.predict_prices[t*n_firms:(t+1)*n_firms]), (1, n_firms))
     alpha_0 = -np.exp(mu + omega**2/2)
     mean_indirect_utility = X@beta + alpha_0*np.array(df.prices[t*n_firms:(t+1)*n_firms])
+    # mean_indirect_utility = X@beta + alpha_0*np.array(df.predict_prices[t*n_firms:(t+1)*n_firms])
     mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, n_consumers, axis=0)
 
     alpha_i = np.reshape((-(np.exp(mu +omega*v_p))+np.exp(mu +omega**2/2)), (n_consumers, 1))
     random_coeff = np.ravel((alpha_i*price_r).T)
 
     u = mean_indirect_utlity_for_utility + random_coeff 
+
+    # X_for_utility = np.repeat(X, n_consumers, axis=0)
+    # price_r = np.reshape(df.prices[t*n_firms:(t+1)*n_firms], (1, n_firms))
+    # alpha_i = np.reshape(-(np.exp(mu + omega*v_p)), (n_consumers, 1))
+    # random_coeff = np.ravel((alpha_i*price_r).T)
+
+    # u = X_for_utility@beta + random_coeff
+
     u_r = np.reshape(u, (n_firms, n_consumers))
     sum_u = np.sum(np.exp(u_r))
 
