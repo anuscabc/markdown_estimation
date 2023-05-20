@@ -23,8 +23,13 @@ sort firm_ids market_ids
 // USE THE ACF ESITMATION PROCEDURE 
 reg lny lnl lnk
 
+
+// The within estimator
 xtreg lny lnl lnk
 
+// The ACF cause i do not have firm exist and dropout as predictivitlity 
 acfest lny, free(lnl) state(lnk) proxy(lni) i(firm_ids) t(market_ids) 
+
+//
 
 
