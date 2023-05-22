@@ -69,7 +69,7 @@ class IntegratedMarketModel:
         self.markups = np.zeros((self.n_firms, self.T))
 
         # All random consumer level shocks for prices
-        self.v_p = np.random.normal(0, 1, (self.n_consumers, self.T))
+        self.v_p = np.random.normal(0, 0.1, (self.n_consumers, self.T))
 
         # Randomly generate stochastic elements
         self.produc_chars = self.gen_product_chars()
@@ -206,11 +206,11 @@ class IntegratedMarketModel:
         """
         # The mean direct utility values
         price_r = np.reshape(price, (1, self.n_firms))
-        alpha_0 = -np.exp(self.mu + (self.omega**2)/2)
+        alpha_0 = -np.exp(self.mu + (self.omega)**2/2)
         mean_indirect_utility = self.produc_chars@self.beta + alpha_0*price
         mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
 
-        alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega**2)/2)), (self.n_consumers, 1))
+        alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega)**2/2)), (self.n_consumers, 1))
         random_coeff = np.ravel((alpha_i*price_r).T)
 
         u = mean_indirect_utlity_for_utility + random_coeff + e

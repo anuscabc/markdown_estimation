@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd 
 import matplotlib.pyplot as plt
 
+# All produciton functions check on their own before setting in the integrated market model
+
 
 def log_production(beta, l, k, omega, eta):
     beta_0 = beta[0]
@@ -70,48 +72,3 @@ def formation_labor_production_log(J, T, K, beta, price, wage, omega, eta_labor,
     return labor, output
      
      
-
-
-
-
-
-
-# def production(beta, labor, capital, omega, eta):
-#     beta_0 = beta[0]
-#     beta_l = beta[1]
-#     beta_k = beta[2]
-#     Y = (labor**beta_l)*(capital**beta_k)*np.exp(beta_0 + omega + eta)
-#     return Y 
-
-# def log_labor_optimal_error(beta, price, wage, omega, eta, k, iota): 
-#     beta_0 = beta[0]
-#     beta_l = beta[1]
-#     beta_k = beta[2]
-#     l = (1/(1-beta_l))*(np.log((price*beta_l)/wage)+ beta_0 + omega +iota + eta + beta_k*k)
-#     return l 
-
-# def log_labor_optimal(beta, price, wage, omega, eta, k): 
-#     beta_0 = beta[0]
-#     beta_l = beta[1]
-#     beta_k = beta[2]
-#     l = (1/(1-beta_l))*(np.log((price*beta_l)/wage)+ beta_0 + omega + eta + beta_k*k)
-#     return l 
-
-
-# def labor_optimal(beta, price, wage, omega, eta, capital):
-#     # Takes only non log values of production 
-#     beta_0 = beta[0]
-#     beta_l = beta[1]
-#     beta_k = beta[2]
-#     optimal_labor = (wage/(beta_l*capital**beta_k*np.exp(beta_0+omega+eta)*price))**(1/(beta_l-1))
-#     return optimal_labor
-
-# def formation_labor_production(J, T, K, beta, price, wage, omega, eta_labor, eta_production):
-#     L = np.zeros((J, T))
-#     Y = np.zeros((J, T))
-
-#     for t in range(1, T): 
-#         L[:, t] = labor_optimal(beta, price[:,t], wage[:,t], omega[:, t], eta_labor[:, t], K[:,t])
-#         Y[:, t] = production(beta, L[:, t], K[:, t], omega[:, t], eta_production[:, t])
-
-#     return L, Y

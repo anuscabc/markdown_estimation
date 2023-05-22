@@ -25,12 +25,6 @@ def share(N_cons, J_prod, X_char, v_p, price, coef_car, mu, omega, e):
     return shares_per_firm, all_probs
 
 
-# Need to write some sort of function here to convince moraga that the continous function 
-# and the discrete function ultimately lead to the same sort of 
-# def discrete_share():
-#     return 
-  
-
 def construct_Jacobian(J_prod, mu, omega, v_p, all_probs):
     J = np.zeros((J_prod, J_prod))
     alphas = -np.exp(mu + omega * v_p)

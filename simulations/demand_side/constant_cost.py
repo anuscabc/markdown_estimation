@@ -8,6 +8,8 @@ from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 import firm_revised
 
+
+
 seed = 100
 np.random.seed(seed)
 # Trying to see how sensitive computed market shares are to the initialized parameters
