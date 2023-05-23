@@ -17,7 +17,7 @@ class IntegratedMarketModel:
             beta=np.array([2, -0.5, -0.3]),
             mu:float=0.5, 
             omega:float=1.,
-            alpha:float=0.7,
+            rho:float=0.7,
             delta:float=0.05,
             gamma:float=0.1, 
             mean_productivity:float=0,
@@ -45,7 +45,7 @@ class IntegratedMarketModel:
         self.omega = omega
 
         # Parameters for supply-side simulation
-        self.alpha = alpha
+        self.rho = rho
         self.delta = delta
         self.gamma = gamma
         self.mean_productivity = mean_productivity
@@ -310,11 +310,11 @@ class IntegratedMarketModel:
         # productivity_shocks[:,0] = np.random.uniform(10, 30, self.n_firms)
 
         # capital[:, 0] = np.random.normal(self.mean_capital, self.std_capital, self.n_firms)
-        capital[:, 0] = np.random.uniform(10, 30, self.n_firms)
+        capital[:, 0] = np.random.uniform(self.mean_capital, 30, self.n_firms)
         investments[:, 0] = self.compute_investment(productivity_shocks[:, 0], capital[:, 0])
 
         for t in range(1, self.T):
-            productivity_shocks[:, t] = (self.alpha * productivity_shocks[:, t-1] 
+            productivity_shocks[:, t] = (self.rho * productivity_shocks[:, t-1] 
                                          + np.random.normal(0, 0.05, size=self.n_firms))
             capital[:, t] = self.capital_formation(capital[:,t-1], investments[:,t-1])
             investments[:, t] = self.compute_investment(productivity_shocks[:, t], capital[:, t])
