@@ -69,10 +69,9 @@ class IntegratedMarketModel:
         self.markups = np.zeros((self.n_firms, self.T))
 
         # All random consumer level shocks for prices
-        self.v_p = np.random.normal(0, 0.1, (self.n_consumers, self.T))
+        self.v_p = np.random.normal(0, 1, (self.n_consumers, self.T))
+        # self.v_p = np.zeros((self.n_consumers, self.T))
 
-        # Randomly generate stochastic elements
-        self.produc_chars = self.gen_product_chars()
 
         # Supply side data
         productivity_shocks, capital, investments = self.gen_productivity_capital_investments()
@@ -81,6 +80,10 @@ class IntegratedMarketModel:
         self.investments = investments
 
         self.labor_quantity = np.zeros((self.n_firms, T))
+
+        # Randomly generate stochastic elements
+        self.produc_chars = self.gen_product_chars()
+
 
     def demand_side_optimisation(self):
         """ The prices are going to be optimally set in each given period """
@@ -250,7 +253,9 @@ class IntegratedMarketModel:
         X1 = np.random.uniform(5, 6, size=self.n_firms)
         # X2 = np.random.uniform(0, 0, size=self.n_firms)
         X2 = np.random.uniform(20, 21, size=self.n_firms)
-        # X2 = X1
+        # X1 = np.ones(self.n_firms)+5
+        # X1 = self.capital[:, 0]
+        # X2 = X1+2
         # X1 = np.array([1., 1., 1., 1., 20., 20., 20., 20., 20., 20.])
         # X2 = np.array([5., 5., 5., 5., 5., 4., 4., 4., 4., 4.])
         all_X = np.column_stack((X1, X2))
@@ -310,7 +315,9 @@ class IntegratedMarketModel:
         # productivity_shocks[:,0] = np.random.uniform(10, 30, self.n_firms)
 
         # capital[:, 0] = np.random.normal(self.mean_capital, self.std_capital, self.n_firms)
-        capital[:, 0] = np.random.uniform(self.mean_capital, 30, self.n_firms)
+        # capital[:, 0] = np.random.uniform(self.mean_capital, 30, self.n_firms)
+        capital[:, 0] = np.random.uniform(3, 5, self.n_firms)
+
         investments[:, 0] = self.compute_investment(productivity_shocks[:, 0], capital[:, 0])
 
         for t in range(1, self.T):
