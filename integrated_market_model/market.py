@@ -14,16 +14,22 @@ class IntegratedMarketModel:
             n_consumers:int,
             n_chars:int,
             T:int, 
-            beta=np.array([2, -0.5, -0.3]),
+            beta1:float=2.,
+            beta2:float=-0.5,
+            beta3:float=-0.3,
             mu:float=0.5, 
             omega:float=1.,
+            x1_min:float=5.,
+            x1_max:float=6.,
+            x2_min:float=1.,
+            x2_max:float=2.,
             rho:float=0.7,
             delta:float=0.05,
             gamma:float=0.1, 
             mean_productivity:float=0,
             std_productivity:float=0.05,
-            mean_capital:float=10.,
-            std_capital:float=2.,
+            min_capital:float=3.,
+            max_capital:float=5.,
             theta_0:float=1.,
             theta_L:float=0.3,
             theta_K:float=0.7,
@@ -40,9 +46,17 @@ class IntegratedMarketModel:
         self.T = T
 
         # Parameters for demand-side simulation
-        self.beta = beta
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.beta3 = beta3
         self.mu = mu
         self.omega = omega
+
+        # parameters for the characterisitcs 
+        self.x1_min = x1_min
+        self.x1_max = x1_max
+        self.x2_min = x2_min
+        self.x2_max = x2_max
 
         # Parameters for supply-side simulation
         self.rho = rho
@@ -50,8 +64,8 @@ class IntegratedMarketModel:
         self.gamma = gamma
         self.mean_productivity = mean_productivity
         self.std_productivity = std_productivity
-        self.mean_capital = mean_capital
-        self.std_capital = std_capital
+        self.min_capital = min_capital
+        self.max_capital = max_capital
         self.theta_0 = theta_0
         self.theta_L = theta_L
         self.theta_K = theta_K
@@ -208,9 +222,13 @@ class IntegratedMarketModel:
             probabilities of purchasing a product
         """
         # The mean direct utility values
+
+
         price_r = np.reshape(price, (1, self.n_firms))
         alpha_0 = -np.exp(self.mu + (self.omega)**2/2)
-        mean_indirect_utility = self.produc_chars@self.beta + alpha_0*price
+
+        beta = np.array([self.beta1, self.beta2, self.beta3])
+        mean_indirect_utility = self.produc_chars@beta + alpha_0*price
         mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
 
         alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega)**2/2)), (self.n_consumers, 1))
@@ -250,11 +268,12 @@ class IntegratedMarketModel:
 
     def gen_product_chars(self):
         """Generates product characteristics"""
-        X1 = np.random.uniform(5, 6, size=self.n_firms)
+        # X1 = np.random.uniform(self.x1_min, self.x1_max, size=self.n_firms)
+        X1 = np.sqrt(self.capital[:, 0])+10
         # X2 = np.random.uniform(0, 0, size=self.n_firms)
-        X2 = np.random.uniform(20, 21, size=self.n_firms)
+        # X2 = np.random.uniform(self.x2_min, self.x2_max, size=self.n_firms)
         # X1 = np.ones(self.n_firms)+5
-        # X1 = self.capital[:, 0]
+        X2 = self.capital[:, 0]+2
         # X2 = X1+2
         # X1 = np.array([1., 1., 1., 1., 20., 20., 20., 20., 20., 20.])
         # X2 = np.array([5., 5., 5., 5., 5., 4., 4., 4., 4., 4.])
@@ -316,7 +335,7 @@ class IntegratedMarketModel:
 
         # capital[:, 0] = np.random.normal(self.mean_capital, self.std_capital, self.n_firms)
         # capital[:, 0] = np.random.uniform(self.mean_capital, 30, self.n_firms)
-        capital[:, 0] = np.random.uniform(3, 5, self.n_firms)
+        capital[:, 0] = np.random.uniform(self.min_capital, self.max_capital, self.n_firms)
 
         investments[:, 0] = self.compute_investment(productivity_shocks[:, 0], capital[:, 0])
 
@@ -377,6 +396,32 @@ class IntegratedMarketModel:
         df_simulation.to_csv(f'data/market_integrates_{self.seed}.csv', index=False)
         print(df_simulation)
 
+
+    def compute_extr_cum_marketshare(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        cum_marketshare = np.sum(self.market_shares, axis=0)
+        return np.min(cum_marketshare), np.max(cum_marketshare)
+
+    def compute_extr_cum_labor(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        cum_labor = np.sum(self.labor_quantity, axis=0)
+        return np.min(cum_labor), np.max(cum_labor)
+    
+    def compute_extr_cum_prices(self):
+        """_summary_
+        Returns:
+            _type_: _description_
+        """
+        cum_prices = np.sum(self.prices, axis=0)
+        return np.min(cum_prices), np.max(cum_prices)
 
     def __str__(self) -> str:
         return f"Market with {self.n_firms} firms and {self.n_consumers} consumers."
