@@ -70,13 +70,13 @@ def generate_samples(sampling_method:str, n_firms:int, n_consumers:int, n_chars:
 
         # TODO save relevant output
         min_mm, max_mm = model.compute_extr_cum_marketshare()
-        min_p, max_p = model.compute_extra_cum_prices()
-        min_l, max_l = model.compute_extra_cum_labor()
+        min_p, max_p = model.compute_extr_cum_prices()
+        min_l, max_l = model.compute_extr_cum_labor()
         run_output = [min_mm, max_mm, min_p, max_p, min_l, max_l]
         outputs.append(run_output)
 
-        if idx==2: 
-            break
+        # if idx==1: 
+        #     break
 
     
     output = np.array(outputs)
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     'bounds': param_bounds
 }
     # Define output parameters of interest
-    output_names = ['min_mm', 'max_mm']
+    output_names = ['min_mm', 'max_mm', 'min_p', 'max_p', 'min_l', 'max_l']
 
     generate_parameters(sampling_method, seed, problem, param_names, param_bounds)
     generate_samples(sampling_method, n_firms, n_consumers, n_chars, T, output_names)
