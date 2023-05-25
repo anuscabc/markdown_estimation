@@ -15,10 +15,10 @@ class IntegratedMarketModel:
             n_chars:int,
             T:int, 
             beta1:float=2.,
-            beta2:float=-0.5,
+            beta2:float=-0.7,
             beta3:float=-0.3,
             mu:float=0.5, 
-            omega:float=1.,
+            omega:float=0.5,
             x1_min:float=5.,
             x1_max:float=6.,
             x2_min:float=1.,
@@ -29,7 +29,7 @@ class IntegratedMarketModel:
             mean_productivity:float=0,
             std_productivity:float=0.05,
             min_capital:float=3.,
-            max_capital:float=5.,
+            max_capital:float=6.,
             theta_0:float=1.,
             theta_L:float=0.3,
             theta_K:float=0.7,
@@ -156,9 +156,13 @@ class IntegratedMarketModel:
         Returns:
             float: the marginal cost for the time period t 
         """
-        MC = (self.wage*(1/self.theta_L)*(self.n_consumers * market_shares/(np.exp(self.theta_0 + self.productivity_shocks[:,t])*
-              self.capital[:,t]**self.theta_K))**((1-self.theta_L)/self.theta_L) *
-              (1/np.exp(self.theta_0 + self.productivity_shocks[:,t])*
+        # MC = ((self.wage*(1/self.theta_L))*((self.n_consumers * market_shares)/(np.exp(self.theta_0 + self.productivity_shocks[:,t])*
+        #       self.capital[:,t]**self.theta_K))**((1-self.theta_L)/self.theta_L) *
+        #       (1/np.exp(self.theta_0 + self.productivity_shocks[:,t])*
+        #       self.capital[:,t]**self.theta_K))
+        
+        MC = (self.wage*(1/self.theta_L))*((self.n_consumers * market_shares)/(np.exp(self.theta_0 + self.productivity_shocks[:,t])*
+              self.capital[:,t]**self.theta_K))**((1/self.theta_L)-1) *(1/(np.exp(self.theta_0 + self.productivity_shocks[:,t])*
               self.capital[:,t]**self.theta_K))
         return MC
 
@@ -270,10 +274,10 @@ class IntegratedMarketModel:
         """Generates product characteristics"""
         # X1 = np.random.uniform(self.x1_min, self.x1_max, size=self.n_firms)
         X1 = np.sqrt(self.capital[:, 0])+10
-        # X2 = np.random.uniform(0, 0, size=self.n_firms)
+        X2 = np.random.uniform(1, 1.5, size=self.n_firms)
         # X2 = np.random.uniform(self.x2_min, self.x2_max, size=self.n_firms)
         # X1 = np.ones(self.n_firms)+5
-        X2 = self.capital[:, 0]+2
+        # X2 = self.capital[:, 0]+2
         # X2 = X1+2
         # X1 = np.array([1., 1., 1., 1., 20., 20., 20., 20., 20., 20.])
         # X2 = np.array([5., 5., 5., 5., 5., 4., 4., 4., 4., 4.])

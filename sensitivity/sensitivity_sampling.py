@@ -99,7 +99,7 @@ if __name__ == "__main__":
 # Define parameters of interest
 # Define parameters of interest
     param_names = ['beta1', 'beta2', 'beta3', 'mu', 'omega', 'theta_0']
-    param_bounds = [[0.5,3], [-0.9, -0.4], [-0.39, -0.2], [0.25, 0.75], [0.5, 1.5], [0.5, 1.5]]
+    param_bounds = [[1.5,2.5], [-0.75, -0.65], [-0.35, -0.25], [0.45, 0.55], [0.45, 0.55], [0.95, 1.05]]
     problem = {
     'num_vars': len(param_names),
     'names': param_names,
