@@ -34,7 +34,7 @@ def generate_parameters(
     param_values = sobol.sample(problem, N=N, calc_second_order=True, seed=seed)
 
     df = pd.DataFrame(param_values, columns=param_names)
-    df.to_csv(f'sensitivity/sensitivity_samples/{sampling_method}_params.csv', index=False)
+    df.to_csv(f'data/{sampling_method}_params.csv', index=False)
 
 
 def generate_samples(sampling_method:str, n_firms:int, n_consumers:int, n_chars:int, T:int, output_names):
@@ -51,7 +51,7 @@ def generate_samples(sampling_method:str, n_firms:int, n_consumers:int, n_chars:
 
     outputs = []
 
-    df_in = pd.read_csv(f'sensitivity/sensitivity_samples/{sampling_method}_params.csv')
+    df_in = pd.read_csv(f'data/{sampling_method}_params.csv')
     param_names = df_in.columns.to_numpy()
     
     for idx, param_values in df_in.iterrows():
@@ -81,7 +81,7 @@ def generate_samples(sampling_method:str, n_firms:int, n_consumers:int, n_chars:
     
     output = np.array(outputs)
     df_out = pd.DataFrame(output, columns=output_names)
-    df_out.to_csv(f'sensitivity/sensitivity_samples/{sampling_method}_output.csv', index=False)
+    df_out.to_csv(f'data/{sampling_method}_output.csv', index=False)
 
    
 
@@ -99,12 +99,12 @@ if __name__ == "__main__":
 # Define parameters of interest
 # Define parameters of interest
     param_names = ['beta1', 'beta2', 'beta3', 'mu', 'omega', 'theta_0']
-    param_bounds = [[1.5,2.5], [-0.75, -0.65], [-0.35, -0.25], [0.45, 0.55], [0.45, 0.55], [0.95, 1.05]]
+    param_bounds = [[1.5, 2.5], [-0.75, -0.65], [-0.35, -0.25], [0.45, 0.55], [0.45, 0.55], [0.95, 1.05]]
     problem = {
     'num_vars': len(param_names),
     'names': param_names,
     'bounds': param_bounds
-}
+} 
     # Define output parameters of interest
     output_names = ['min_mm', 'max_mm', 'min_p', 'max_p', 'min_l', 'max_l']
 

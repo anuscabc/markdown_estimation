@@ -23,7 +23,7 @@ class IntegratedMarketModel:
             x1_max:float=6.,
             x2_min:float=1.,
             x2_max:float=2.,
-            rho:float=0.7,
+            tau:float=0.7,
             delta:float=0.05,
             gamma:float=0.1, 
             mean_productivity:float=0,
@@ -59,7 +59,7 @@ class IntegratedMarketModel:
         self.x2_max = x2_max
 
         # Parameters for supply-side simulation
-        self.rho = rho
+        self.tau = tau
         self.delta = delta
         self.gamma = gamma
         self.mean_productivity = mean_productivity
@@ -344,7 +344,7 @@ class IntegratedMarketModel:
         investments[:, 0] = self.compute_investment(productivity_shocks[:, 0], capital[:, 0])
 
         for t in range(1, self.T):
-            productivity_shocks[:, t] = (self.rho * productivity_shocks[:, t-1] 
+            productivity_shocks[:, t] = (self.tau * productivity_shocks[:, t-1] 
                                          + np.random.normal(0, 0.05, size=self.n_firms))
             capital[:, t] = self.capital_formation(capital[:,t-1], investments[:,t-1])
             investments[:, t] = self.compute_investment(productivity_shocks[:, t], capital[:, t])
