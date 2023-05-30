@@ -28,12 +28,12 @@ class IntegratedMarketModel:
             gamma:float=0.1, 
             mean_productivity:float=0,
             std_productivity:float=0.05,
-            min_capital:float=3.,
-            max_capital:float=6.,
+            min_capital:float=10.,
+            max_capital:float=16.,
             theta_0:float=1.,
             theta_L:float=0.3,
             theta_K:float=0.7,
-            wage:float=0.5,
+            wage:float=5,
             seed:int=100
         ):
 
@@ -272,9 +272,9 @@ class IntegratedMarketModel:
 
     def gen_product_chars(self):
         """Generates product characteristics"""
-        # X1 = np.random.uniform(self.x1_min, self.x1_max, size=self.n_firms)
-        X1 = np.sqrt(self.capital[:, 0])+10
-        X2 = np.random.uniform(1, 1.5, size=self.n_firms)
+        X1 = np.random.uniform(self.x1_min, self.x1_max, size=self.n_firms)
+        # X1 = np.sqrt(self.capital[:, 0])+10
+        X2 = np.random.uniform(self.x2_min, self.x2_max, size=self.n_firms)
         # X2 = np.random.uniform(self.x2_min, self.x2_max, size=self.n_firms)
         # X1 = np.ones(self.n_firms)+5
         # X2 = self.capital[:, 0]+2
