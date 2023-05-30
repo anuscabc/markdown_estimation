@@ -400,6 +400,8 @@ class IntegratedMarketModel:
         df_simulation.to_csv(f'data/market_integrates_{self.seed}.csv', index=False)
         print(df_simulation)
 
+    # def save_simulation_data(self, df_simulation):
+    #     df_simulation.to_csv(f'data/market_integrates_{self.seed}.csv', index=False)
 
     def compute_extr_cum_marketshare(self):
         """_summary_
@@ -426,6 +428,28 @@ class IntegratedMarketModel:
         """
         cum_prices = np.sum(self.prices, axis=0)
         return np.min(cum_prices), np.max(cum_prices)
+    
+
+    # Get some of the mean variables of interest also can be used when needed in the sensitivity analysis
+    def compute_mean_marketshare(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        mean_marketshare = np.mean(self.market_shares, axis=0)
+        return mean_marketshare
+    
+    def compute_mean_price(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        mean_marketshare = np.mean(self.prices, axis=0)
+        return mean_marketshare
+    
+
 
     def __str__(self) -> str:
         return f"Market with {self.n_firms} firms and {self.n_consumers} consumers."
