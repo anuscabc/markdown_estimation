@@ -16,13 +16,13 @@ class IntegratedMarketModel:
             T:int, 
             beta1:float=2.,
             beta2:float=-0.7,
-            beta3:float=-0.3,
+            beta3:float=-0.7,
             mu:float=0.5, 
             omega:float=0.5,
-            x1_min:float=5.,
-            x1_max:float=6.,
-            x2_min:float=1.,
-            x2_max:float=2.,
+            x1_min:float=2.,
+            x1_max:float=3.,
+            x2_min:float=5.,
+            x2_max:float=6.,
             tau:float=0.7,
             delta:float=0.05,
             gamma:float=0.1, 
@@ -33,7 +33,7 @@ class IntegratedMarketModel:
             theta_0:float=1.,
             theta_L:float=0.3,
             theta_K:float=0.7,
-            wage:float=5,
+            wage:float=15,
             seed:int=100
         ):
 
@@ -437,7 +437,7 @@ class IntegratedMarketModel:
         Returns:
             _type_: _description_
         """
-        mean_marketshare = np.mean(self.market_shares, axis=0)
+        mean_marketshare = (self.market_shares.T.flatten()).mean()
         return mean_marketshare
     
     def compute_mean_price(self):
@@ -446,9 +446,22 @@ class IntegratedMarketModel:
         Returns:
             _type_: _description_
         """
-        mean_marketshare = np.mean(self.prices, axis=0)
-        return mean_marketshare
+        mean_prices = (self.prices.T.flatten()).mean()
+        return mean_prices
     
+
+    def compute_mean_labor(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        mean_labor = (self.labor_quantity.T.flatten()).mean()
+        return mean_labor
+
+
+
+
 
 
     def __str__(self) -> str:

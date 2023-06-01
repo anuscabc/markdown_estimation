@@ -69,10 +69,15 @@ def generate_samples(sampling_method:str, n_firms:int, n_consumers:int, n_chars:
         model.demand_side_optimisation()
 
         # TODO save relevant output
-        min_mm, max_mm = model.compute_extr_cum_marketshare()
-        min_p, max_p = model.compute_extr_cum_prices()
-        min_l, max_l = model.compute_extr_cum_labor()
-        run_output = [min_mm, max_mm, min_p, max_p, min_l, max_l]
+        # min_mm, max_mm = model.compute_extr_cum_marketshare()
+        # min_p, max_p = model.compute_extr_cum_prices()
+        # min_l, max_l = model.compute_extr_cum_labor()
+        # run_output = [min_mm, max_mm, min_p, max_p, min_l, max_l]
+
+        mean_mm = model.compute_mean_marketshare()
+        mean_p = model.compute_mean_price()
+        mean_l = model.compute_mean_labor()
+        run_output = [mean_mm, mean_p, mean_l]
         outputs.append(run_output)
 
         # if idx==1: 
@@ -90,7 +95,7 @@ if __name__ == "__main__":
     n_firms = 10
     n_consumers = 500
     n_chars = 2
-    T = 100
+    T = 1
     seed = 1234
 
     sampling_method = 'sobol'
@@ -98,15 +103,16 @@ if __name__ == "__main__":
     # Define parameters of interest
 # Define parameters of interest
 # Define parameters of interest
-    param_names = ['beta1', 'beta2', 'beta3', 'mu', 'omega', 'wage']
-    param_bounds = [[1., 3.], [-0.9, -0.5], [-0.4, -0.2], [0.2, 1], [0.45, 1.], [3., 6.]]
+    param_names = ['beta1', 'beta2', 'beta3', 'mu', 'omega']
+    param_bounds = [[1., 3.], [-1., -0.1], [-1., -0.1], [0.2, 1], [0.1, 1.]]
     problem = {
     'num_vars': len(param_names),
     'names': param_names,
     'bounds': param_bounds
-} 
+    } 
     # Define output parameters of interest
-    output_names = ['min_mm', 'max_mm', 'min_p', 'max_p', 'min_l', 'max_l']
+    # output_names = ['min_mm', 'max_mm', 'min_p', 'max_p', 'min_l', 'max_l']
+    output_names = ['mean_mm', 'mean_p', 'mean_l']
 
     generate_parameters(sampling_method, seed, problem, param_names, param_bounds)
     generate_samples(sampling_method, n_firms, n_consumers, n_chars, T, output_names)

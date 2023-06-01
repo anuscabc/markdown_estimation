@@ -1,22 +1,34 @@
-# from market import IntegratedMarketModel
+from market import IntegratedMarketModel
 
-# def single_simulation(n_firms, n_consumers, n_chars, T, s):
-#     model = IntegratedMarketModel(
-#         n_firms, 
-#         n_consumers, 
-#         n_chars, 
-#         T, 
-#         seed=s
-#     )
-#     model.demand_side_optimisation()
-#     model.save_simulation_data()
 
-# if __name__ == "__main__":
+mean_prices = []
 
-#     n_firms = 10
-#     n_consumers = 1000
-#     n_chars = 1
-#     T = 100
-#     s = 400
-#     for n_frims in range(1, 20, 1):
-#         single_simulation(n_firms, n_consumers, n_chars, T, s)
+def single_simulation(n_firms, n_consumers, n_chars, T, s):
+    model = IntegratedMarketModel(
+        n_firms, 
+        n_consumers, 
+        n_chars, 
+        T, 
+        seed=s
+    )
+    model.demand_side_optimisation()
+    # print to see what it 
+    # looks like before saving the flatten array and taking the mean over the different 
+    # number of firms 
+    flatten_prices = model.prices.T.flatten()
+    return flatten_prices.mean()
+
+
+
+
+if __name__ == "__main__":
+
+    # n_firms = 2
+    n_consumers = 500
+    n_chars = 1
+    T = 1
+    s = 123
+    for n_firms in range(3, 15, 1):
+        res = single_simulation(n_firms, n_consumers, n_chars, T, s)
+        mean_prices.append(res)
+    print(mean_prices)
