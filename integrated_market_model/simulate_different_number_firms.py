@@ -28,7 +28,7 @@ if __name__ == "__main__":
     n_chars = 1
     T = 1
     s = 123
-    for n_firms in range(3, 15, 1):
+    for n_firms in range(1, 15, 1):
         res = single_simulation(n_firms, n_consumers, n_chars, T, s)
         mean_prices.append(res)
     print(mean_prices)

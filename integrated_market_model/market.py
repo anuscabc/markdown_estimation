@@ -18,9 +18,9 @@ class IntegratedMarketModel:
             beta2:float=-0.7,
             beta3:float=-0.7,
             mu:float=0.5, 
-            omega:float=0.5,
-            x1_min:float=2.,
-            x1_max:float=3.,
+            omega:float=1.,
+            x1_min:float=5.,
+            x1_max:float=6.,
             x2_min:float=5.,
             x2_max:float=6.,
             tau:float=0.7,
@@ -28,8 +28,8 @@ class IntegratedMarketModel:
             gamma:float=0.1, 
             mean_productivity:float=0,
             std_productivity:float=0.05,
-            min_capital:float=10.,
-            max_capital:float=16.,
+            min_capital:float=0.10,
+            max_capital:float=0.16,
             theta_0:float=1.,
             theta_L:float=0.3,
             theta_K:float=0.7,
@@ -92,7 +92,6 @@ class IntegratedMarketModel:
         self.productivity_shocks = productivity_shocks
         self.capital = capital
         self.investments = investments
-
         self.labor_quantity = np.zeros((self.n_firms, T))
 
         # Randomly generate stochastic elements
@@ -229,13 +228,15 @@ class IntegratedMarketModel:
 
 
         price_r = np.reshape(price, (1, self.n_firms))
-        alpha_0 = -np.exp(self.mu + (self.omega)**2/2)
+        alpha_0 = -np.exp(self.mu + (self.omega**2)/2)
+        # alpha_0 = -2.71
 
         beta = np.array([self.beta1, self.beta2, self.beta3])
         mean_indirect_utility = self.produc_chars@beta + alpha_0*price
         mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
 
         alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega)**2/2)), (self.n_consumers, 1))
+        # alpha_i = np.reshape(0 * v_p, (self.n_consumers, 1))
         random_coeff = np.ravel((alpha_i*price_r).T)
 
         u = mean_indirect_utlity_for_utility + random_coeff + e
@@ -243,7 +244,7 @@ class IntegratedMarketModel:
         sum_u = np.sum(np.exp(u_r))
 
         all_probs = np.exp(u_r)/(1 + sum_u)
-        market_shares = np.sum(all_probs, axis=1)
+        market_shares = (1/self.n_consumers)*np.sum(all_probs, axis=1)
 
         return market_shares, all_probs, mean_indirect_utility
 
@@ -259,28 +260,22 @@ class IntegratedMarketModel:
             float matrix : the Jacobian matrix of shares with respect to prices 
         """
         J = np.zeros((self.n_firms, self.n_firms))
-        alphas = -np.exp(self.mu + self.omega * v_p)
+        alphas = -np.exp(self.mu + self.omega* v_p)
+        # alphas = -2.71 + 0* v_p
         for i in range(J.shape[0]):
             for j in range(J.shape[1]):
                 p1 = all_probs[i, :]
                 if i == j:
-                    J[i, j] = np.sum(alphas * p1 - alphas * p1 ** 2)
+                    J[i, j] = (1/self.n_consumers)*np.sum(alphas * p1 - alphas * (p1 ** 2))
                 else: 
                     p2 = all_probs[j, :]
-                    J[i, j] = np.sum(alphas * p1 * p2)
+                    J[i, j] = (1/self.n_consumers)*np.sum(-alphas * p1 * p2)
         return J
 
     def gen_product_chars(self):
         """Generates product characteristics"""
         X1 = np.random.uniform(self.x1_min, self.x1_max, size=self.n_firms)
-        # X1 = np.sqrt(self.capital[:, 0])+10
         X2 = np.random.uniform(self.x2_min, self.x2_max, size=self.n_firms)
-        # X2 = np.random.uniform(self.x2_min, self.x2_max, size=self.n_firms)
-        # X1 = np.ones(self.n_firms)+5
-        # X2 = self.capital[:, 0]+2
-        # X2 = X1+2
-        # X1 = np.array([1., 1., 1., 1., 20., 20., 20., 20., 20., 20.])
-        # X2 = np.array([5., 5., 5., 5., 5., 4., 4., 4., 4., 4.])
         all_X = np.column_stack((X1, X2))
         X0 = np.ones(self.n_firms)
         return np.column_stack((X0, all_X))
@@ -335,10 +330,6 @@ class IntegratedMarketModel:
         # Getting the first period initialization
         # There needs to be some sort of initialization for omega and capital 
         productivity_shocks[:,0] = np.random.normal(self.mean_productivity, self.std_productivity, self.n_firms)
-        # productivity_shocks[:,0] = np.random.uniform(10, 30, self.n_firms)
-
-        # capital[:, 0] = np.random.normal(self.mean_capital, self.std_capital, self.n_firms)
-        # capital[:, 0] = np.random.uniform(self.mean_capital, 30, self.n_firms)
         capital[:, 0] = np.random.uniform(self.min_capital, self.max_capital, self.n_firms)
 
         investments[:, 0] = self.compute_investment(productivity_shocks[:, 0], capital[:, 0])
@@ -459,6 +450,17 @@ class IntegratedMarketModel:
         mean_labor = (self.labor_quantity.T.flatten()).mean()
         return mean_labor
 
+    def get_alphas(self):
+
+        #Get the alphas in 3 ways to see if they all have the same distribution 
+        # The original way 
+        alpha_i_1 = -np.exp(self.mu + self.omega*self.v_p)
+        # The extended way 
+        alpha_i_2 = -np.exp(self.mu + (self.omega**2)/2) + (-np.exp(self.mu + self.omega*self.v_p) + 
+                                                            np.exp(self.mu + (self.omega**2)/2))
+        # The different way where we explicitly caluclate the variance in the log-normal distribution 
+        alpha_i_3 = -2.718 + self.mu*self.v_p
+        return alpha_i_1, alpha_i_2, alpha_i_3
 
 
 

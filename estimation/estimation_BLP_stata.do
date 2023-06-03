@@ -4,7 +4,7 @@ clear all
 //BLP estimation with the generated data 
 global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data"
 cd $path
-import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_4.csv"
+import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_400.csv"
 describe
 
 
@@ -14,14 +14,18 @@ drop if shares == 1
 egen sum_shares = sum(shares), by(market_ids) 
 gen outside_good = 1 -sum_shares
 
-gen y = ln(shares) - ln(outside_good)
+gen y = ln(shares) - ln(outside_good)ß
 
 reg y characteristic1 characteristic2 price, robust 
+estimates store e1 
 
-ivregress 2sls y characteristic1 characteristic2 (price=labor), robust
+ivregress 2sls y characteristic1 characteristic2 (price= marginal_cost), robust
+estimates store e2
 
-blp shares characteristic1 characteristic2, endog(prices= marginal_cost, productivity) stochastic(prices) markets(market_ids) draws(500) 
+blp shares characteristic1 characteristic2, endog(prices= capital labor) stochastic(prices) markets(market_ids) draws(10000)
+estimates store e3
 
 
 
+esttab e* using blp.tex,  se r2  b(3) se(2) sfmt(2ß) obslast star(* 0.10 ** 0.05 *** 0.01) replace  //getting latex table
 
