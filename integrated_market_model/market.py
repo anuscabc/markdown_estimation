@@ -17,12 +17,12 @@ class IntegratedMarketModel:
             beta1:float=2.,
             beta2:float=-0.7,
             beta3:float=-0.7,
-            mu:float=0.5, 
-            omega:float=0.5,
-            x1_min:float=5.,
-            x1_max:float=6.,
-            x2_min:float=5.,
-            x2_max:float=6.,
+            mu:float=1.5, 
+            omega:float=0.3,
+            x1_min:float=4.,
+            x1_max:float=5.,
+            x2_min:float=4.,
+            x2_max:float=5.,
             rho:float=0.7,
             tau:float=0.05,
             gamma:float=0.1, 
@@ -195,63 +195,34 @@ class IntegratedMarketModel:
             probabilities of purchasing a product
 
         v.01 - in this version you are using a normal distribution for the price coefficient
+        v.02 - debug and hand calculation done and this should now be correct 
+
         """
         beta = np.array([self.beta1, self.beta2, self.beta3])
-        X_for_utility = np.repeat(self.produc_chars, self.n_consumers, axis=0)
-
-        price_r = np.reshape(price, (1, self.n_firms))
-        alpha_i = np.reshape((-self.mu + self.omega*v_p), (self.n_consumers, 1))
-
-
-        # random_coeff = np.ravel((alpha_i@price_r).T)
-        random_coeff = np.ravel((alpha_i@price_r))
-
-        u = X_for_utility@beta + random_coeff + e
-        u_r = np.reshape(u, (self.n_firms, self.n_consumers))
-        sum_u = np.sum(np.exp(u_r))
-
-        all_probs = np.exp(u_r)/(1 + sum_u)
-        market_shares = np.sum(all_probs, axis=1)
-        # market_shares = np.sum(all_probs, axis=1)/self.n_consumers
 
         mean_indirect_utility = self.produc_chars@beta - self.mu*price
+        mean_indirect_utility_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
+
+
+        price_r = np.reshape(price, (1, self.n_firms))
+        alpha_i = np.reshape((self.omega*v_p), (self.n_consumers, 1))
+
+
+        random_coeff = np.ravel((alpha_i@price_r).T)
+
+        u = mean_indirect_utility_for_utility + random_coeff + e
+
+
+
+        u_r = np.reshape(u, (self.n_firms, self.n_consumers))
+        sum_u = np.sum(np.exp(u_r), axis=0)
+
+        all_probs = np.exp(u_r)/(1 + sum_u)
+
+        market_shares = np.sum(all_probs, axis=1)/self.n_consumers
 
         return market_shares, all_probs, mean_indirect_utility
 
-    # def compute_share(self, v_p, price, e):
-    #     """Formula for computing the market share based on the multinomial 
-    #     logit probability"
-
-    #     Args:
-    #         v_p (float): random consumer specific demand shock
-    #         price (float): the optimal price in the fiven time period
-    #         e (float): the type I extreme value error term
-
-    #     Returns:
-    #         float, float : The value of the market share and the individual 
-    #         probabilities of purchasing a product
-
-    #     v.0.1 this is the version with the log normal coefficeints as described in the model 
-    #     in the latex thing ()
-    #     """
-    #     # The mean direct utility values
-    #     price_r = np.reshape(price, (1, self.n_firms))
-    #     alpha_0 = -np.exp(self.mu + (self.omega**2)/2)
-    #     beta = np.array([self.beta1, self.beta2, self.beta3])
-    #     mean_indirect_utility = self.produc_chars@beta + alpha_0*price
-    #     mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
-
-    #     alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega)**2/2)), (self.n_consumers, 1))
-    #     random_coeff = np.ravel((alpha_i*price_r).T)
-
-    #     u = mean_indirect_utlity_for_utility + random_coeff + e
-    #     u_r = np.reshape(u, (self.n_firms, self.n_consumers))
-    #     sum_u = np.sum(np.exp(u_r))
-
-    #     all_probs = np.exp(u_r)/(1 + sum_u)
-    #     market_shares = (1/self.n_consumers)*np.sum(all_probs, axis=1)
-    #     return market_shares, all_probs, mean_indirect_utility
-    
 
     def construct_Jacobian(self, all_probs, v_p):
         """ Formulas for the matrix of first order conditions of market
@@ -263,26 +234,25 @@ class IntegratedMarketModel:
 
         Returns:
             float matrix : the Jacobian matrix of shares with respect to prices 
+
+        updated version that should be giving the corrent result in the end 
+        This needs to be further debugged because i think it doesn't some
+        across correctly 
         """
         J = np.zeros((self.n_firms, self.n_firms))
-        # alphas = -np.exp(self.mu + self.omega* v_p)
         alphas = -self.mu + self.omega*v_p
 
         for i in range(J.shape[0]):
             for j in range(J.shape[1]):
                 p1 = all_probs[i, :]
                 if i == j:
-                    # This is the fomrula that you have in the thing
-                    # J[i, j] = (1/self.n_consumers)*np.sum(alphas * p1 - alphas * (p1 ** 2))
-                    J[i, j] = np.sum(alphas * p1 - alphas * (p1 ** 2))
+                    J[i, j] = (1/self.n_consumers)*np.sum((alphas * p1 - alphas * (p1 ** 2)))
 
 
 
                 else: 
                     p2 = all_probs[j, :]
-                    # This is the formula that you have in the thing
-                    # J[i, j] = (1/self.n_consumers)*np.sum(-alphas * p1 * p2)
-                    J[i, j] = np.sum(-alphas * p1 * p2)
+                    J[i, j] = (1/self.n_consumers)*np.sum((-alphas * p1 * p2), axis=1)
 
 
         return J
