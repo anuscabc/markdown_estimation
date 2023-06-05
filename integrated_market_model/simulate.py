@@ -13,13 +13,14 @@ def single_simulation(n_firms, n_consumers, n_chars, T, s):
 
 
 
+
 if __name__ == "__main__":
 
-    n_firms = 5
+    n_firms = 10
     n_consumers = 500
-    n_chars = 1
+    n_chars = 2
     T = 100
-    s = 100
-    # for s in range(1, 2, 1):
-    single_simulation(n_firms, n_consumers, n_chars, T, s)
+    # s = 100
+    for s in range(1, 10, 1):
+        single_simulation(n_firms, n_consumers, n_chars, T, s)
 

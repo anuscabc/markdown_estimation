@@ -104,7 +104,7 @@ if __name__ == "__main__":
 # Define parameters of interest
 # Define parameters of interest
     param_names = ['beta1', 'beta2', 'beta3', 'mu', 'omega']
-    param_bounds = [[1., 3.], [-1., -0.1], [-1., -0.1], [0.2, 1], [0.1, 1.]]
+    param_bounds = [[-3., -2.], [0.1, 1.], [0.1, 1.], [-1.6, -0.8], [0.1, 0.3]]
     problem = {
     'num_vars': len(param_names),
     'names': param_names,
