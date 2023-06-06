@@ -17,7 +17,7 @@ def single_simulation(n_firms, n_consumers, n_chars, T, s):
 if __name__ == "__main__":
 
     n_firms = 10
-    n_consumers = 500
+    n_consumers = 1000
     n_chars = 2
     T = 100
     # s = 100

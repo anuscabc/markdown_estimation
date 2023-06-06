@@ -15,21 +15,21 @@ class IntegratedMarketModel:
             n_chars:int,
             T:int, 
             beta1:float=2.,
-            beta2:float=-0.7,
-            beta3:float=-0.7,
-            mu:float=1.5, 
-            omega:float=0.3,
-            x1_min:float=4.,
-            x1_max:float=5.,
-            x2_min:float=4.,
-            x2_max:float=5.,
+            beta2:float=-0.3,
+            beta3:float=-0.3,
+            mu:float=0.5, 
+            omega:float=0.2,
+            x1_min:float=5.,
+            x1_max:float=6.,
+            x2_min:float=5.,
+            x2_max:float=6.,
             rho:float=0.7,
             tau:float=0.05,
             gamma:float=0.1, 
             mean_productivity:float=0,
             std_productivity:float=0.05,
             min_capital:float=10.,
-            max_capital:float=16.,
+            max_capital:float=11.,
             theta_0:float=1.,
             theta_L:float=0.3,
             theta_K:float=0.7,
@@ -84,7 +84,6 @@ class IntegratedMarketModel:
 
         # All random consumer level shocks for prices
         self.v_p = np.random.normal(0, 1, (self.n_consumers, self.T))
-        # self.v_p = np.zeros((self.n_consumers, self.T))
 
 
         # Supply side data
@@ -126,6 +125,7 @@ class IntegratedMarketModel:
         self.compute_labor_from_quantity()
 
     def root_objective(self, price, v_p, e, t):
+
         """ The function is the first order condition of the 
         profif maximization problem of the firm
 
@@ -138,10 +138,12 @@ class IntegratedMarketModel:
         Returns:
             float: the profit first order condition that needs to be null
         """
+
         market_shares, all_probs, mean_indirect_utility = self.compute_share(v_p, price, e)
         cost = self.compute_marginal_cost(market_shares, t)
-        Jacobian = self.construct_Jacobian(all_probs, v_p) 
+        Jacobian = self.construct_Jacobian(all_probs, v_p)
         profit_FOC = np.matmul(np.transpose(Jacobian), (price - cost)) + market_shares
+        # profit_FOC = Jacobian@(price - cost) + market_shares
         return profit_FOC
 
     def compute_marginal_cost(self, market_shares, t):
@@ -180,7 +182,6 @@ class IntegratedMarketModel:
         self.markups[:,t] = self.prices[:,t]/self.costs[:,t]
 
 
-
     def compute_share(self, v_p, price, e):
         """Formula for computing the market share based on the multinomial 
         logit probability"
@@ -193,36 +194,67 @@ class IntegratedMarketModel:
         Returns:
             float, float : The value of the market share and the individual 
             probabilities of purchasing a product
-
-        v.01 - in this version you are using a normal distribution for the price coefficient
-        v.02 - debug and hand calculation done and this should now be correct 
-
         """
-        beta = np.array([self.beta1, self.beta2, self.beta3])
-
-        mean_indirect_utility = self.produc_chars@beta - self.mu*price
-        mean_indirect_utility_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
+        # The mean direct utility values
 
 
         price_r = np.reshape(price, (1, self.n_firms))
-        alpha_i = np.reshape((self.omega*v_p), (self.n_consumers, 1))
+        alpha_0 = -np.exp(self.mu + (self.omega)**2/2)
 
+        beta = np.array([self.beta1, self.beta2, self.beta3])
+        mean_indirect_utility = self.produc_chars@beta + alpha_0*price
+        mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
 
-        random_coeff = np.ravel((alpha_i@price_r).T)
+        alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega)**2/2)), (self.n_consumers, 1))
+        random_coeff = np.ravel((alpha_i*price_r).T)
 
-        u = mean_indirect_utility_for_utility + random_coeff + e
-
-
-
+        u = mean_indirect_utlity_for_utility + random_coeff + e
         u_r = np.reshape(u, (self.n_firms, self.n_consumers))
-        sum_u = np.sum(np.exp(u_r), axis=0)
+        sum_u = np.sum(np.exp(u_r), axis =0)
 
         all_probs = np.exp(u_r)/(1 + sum_u)
-
         market_shares = np.sum(all_probs, axis=1)/self.n_consumers
 
         return market_shares, all_probs, mean_indirect_utility
 
+
+    # def compute_share(self, v_p, price, e):
+    #     """Formula for computing the market share based on the multinomial 
+    #     logit probability"
+
+    #     Args:
+    #         v_p (float): random consumer specific demand shock
+    #         price (float): the optimal price in the fiven time period
+    #         e (float): the type I extreme value error term
+
+    #     Returns:
+    #         float, float : The value of the market share and the individual 
+    #         probabilities of purchasing a product
+
+    #     v.01 - in this version you are using a normal distribution for the price coefficient
+    #     v.02 - debug and hand calculation done and this should now be correct 
+
+    #     """
+    #     beta = np.array([self.beta1, self.beta2, self.beta3])
+
+
+    #     mean_indirect_utility = self.produc_chars@beta + self.mu*price
+    #     mean_indirect_utility_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
+
+
+    #     price_r = np.reshape(price, (1, self.n_firms))
+    #     alpha_i = np.reshape((self.omega*v_p), (self.n_consumers, 1))
+    #     random_coeff = np.ravel((alpha_i@price_r).T)
+
+    #     u = mean_indirect_utility_for_utility + random_coeff + e
+    #     u_r = np.reshape(u, (self.n_firms, self.n_consumers))
+    #     sum_u = np.sum(np.exp(u_r), axis=0)
+
+
+    #     all_probs = np.exp(u_r)/(1 + sum_u)
+    #     market_shares = np.sum(all_probs, axis=1)/self.n_consumers
+
+    #     return market_shares, all_probs, mean_indirect_utility
 
     def construct_Jacobian(self, all_probs, v_p):
         """ Formulas for the matrix of first order conditions of market
@@ -240,21 +272,18 @@ class IntegratedMarketModel:
         across correctly 
         """
         J = np.zeros((self.n_firms, self.n_firms))
-        alphas = -self.mu + self.omega*v_p
+        
+        # alphas = self.mu + self.omega*v_p
 
+        alphas = -np.exp(self.mu + self.omega*v_p)
         for i in range(J.shape[0]):
+            p1 = all_probs[i, :]
             for j in range(J.shape[1]):
-                p1 = all_probs[i, :]
                 if i == j:
-                    J[i, j] = (1/self.n_consumers)*np.sum((alphas * p1 - alphas * (p1 ** 2)))
-
-
-
+                    J[i, j] = np.sum(alphas * p1 - alphas * (p1 ** 2))/self.n_consumers
                 else: 
                     p2 = all_probs[j, :]
-                    J[i, j] = (1/self.n_consumers)*np.sum((-alphas * p1 * p2), axis=1)
-
-
+                    J[i, j] = np.sum(-alphas * p1 * p2)/self.n_consumers
         return J
 
     def gen_product_chars(self):
@@ -445,8 +474,10 @@ class IntegratedMarketModel:
         alpha_i_2 = -np.exp(self.mu + (self.omega**2)/2) + (-np.exp(self.mu + self.omega*self.v_p) + 
                                                             np.exp(self.mu + (self.omega**2)/2))
         # The different way where we explicitly caluclate the variance in the log-normal distribution 
-        alpha_i_3 = -2.718 + self.mu*self.v_p
-        return alpha_i_1, alpha_i_2, alpha_i_3
+        alpha_0 = -np.exp(self.mu + (self.omega**2)/2)
+        sigma_0 = -(np.exp(self.omega ** 2) - 1) * np.exp(2 * self.mu + self.omega ** 2)
+
+        return alpha_i_1, alpha_i_2, alpha_0, sigma_0
 
 
 

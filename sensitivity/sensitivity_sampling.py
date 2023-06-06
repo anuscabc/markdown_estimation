@@ -30,7 +30,7 @@ def generate_parameters(
     """
     
     # TODO change method to match given sampling method
-    N = 2 ** len(param_names)
+    N = 5 * 2 ** len(param_names)
     param_values = sobol.sample(problem, N=N, calc_second_order=True, seed=seed)
 
     df = pd.DataFrame(param_values, columns=param_names)
@@ -69,15 +69,13 @@ def generate_samples(sampling_method:str, n_firms:int, n_consumers:int, n_chars:
         model.demand_side_optimisation()
 
         # TODO save relevant output
-        # min_mm, max_mm = model.compute_extr_cum_marketshare()
-        # min_p, max_p = model.compute_extr_cum_prices()
-        # min_l, max_l = model.compute_extr_cum_labor()
-        # run_output = [min_mm, max_mm, min_p, max_p, min_l, max_l]
-
-        mean_mm = model.compute_mean_marketshare()
+        min_mm, max_mm = model.compute_extr_cum_marketshare()
+        min_p, max_p = model.compute_extr_cum_prices()
+        min_l, max_l = model.compute_extr_cum_labor()
+        mean_mm = model.compute_mean_marketshare() 
         mean_p = model.compute_mean_price()
         mean_l = model.compute_mean_labor()
-        run_output = [mean_mm, mean_p, mean_l]
+        run_output = [mean_mm, mean_p, mean_l, min_mm, max_mm, min_p, max_p, min_l, max_l]
         outputs.append(run_output)
 
         # if idx==1: 
@@ -104,7 +102,7 @@ if __name__ == "__main__":
 # Define parameters of interest
 # Define parameters of interest
     param_names = ['beta1', 'beta2', 'beta3', 'mu', 'omega']
-    param_bounds = [[-3., -2.], [0.1, 1.], [0.1, 1.], [-1.6, -0.8], [0.1, 0.3]]
+    param_bounds = [[2., 3.], [-0.4, -0.1], [-0.4, -0.1], [0.1, 0.6], [0.1, 0.5]]
     problem = {
     'num_vars': len(param_names),
     'names': param_names,
@@ -112,7 +110,7 @@ if __name__ == "__main__":
     } 
     # Define output parameters of interest
     # output_names = ['min_mm', 'max_mm', 'min_p', 'max_p', 'min_l', 'max_l']
-    output_names = ['mean_mm', 'mean_p', 'mean_l']
+    output_names = ['mean_mm', 'mean_p', 'mean_l', 'min_mm', 'max_mm', 'min_p', 'max_p', 'min_l', 'max_l']
 
     generate_parameters(sampling_method, seed, problem, param_names, param_bounds)
     generate_samples(sampling_method, n_firms, n_consumers, n_chars, T, output_names)
