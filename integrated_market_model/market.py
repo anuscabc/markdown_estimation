@@ -19,9 +19,9 @@ class IntegratedMarketModel:
             beta3:float=-0.3,
             mu:float=0.5, 
             omega:float=0.2,
-            x1_min:float=5.,
+            x1_min:float=3.,
             x1_max:float=6.,
-            x2_min:float=5.,
+            x2_min:float=3.,
             x2_max:float=6.,
             rho:float=0.7,
             tau:float=0.05,
@@ -29,7 +29,7 @@ class IntegratedMarketModel:
             mean_productivity:float=0,
             std_productivity:float=0.05,
             min_capital:float=10.,
-            max_capital:float=11.,
+            max_capital:float=10.,
             theta_0:float=1.,
             theta_L:float=0.3,
             theta_K:float=0.7,
@@ -475,7 +475,7 @@ class IntegratedMarketModel:
                                                             np.exp(self.mu + (self.omega**2)/2))
         # The different way where we explicitly caluclate the variance in the log-normal distribution 
         alpha_0 = -np.exp(self.mu + (self.omega**2)/2)
-        sigma_0 = -(np.exp(self.omega ** 2) - 1) * np.exp(2 * self.mu + self.omega ** 2)
+        sigma_0 = np.sqrt((np.exp(self.omega ** 2) - 1) * np.exp(2 * self.mu + self.omega ** 2))
 
         return alpha_i_1, alpha_i_2, alpha_0, sigma_0
 
