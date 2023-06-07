@@ -34,6 +34,10 @@ def single_simulation(n_firms, n_consumers, n_chars, T, s, x1_min, x2_min):
 
 if __name__ == "__main__":
 
+    """This function now simlates the model for diffeent number of product characteritics and looks how 
+    prices, market shares, costs and markups react -> 
+    """
+
     n_firms = 10
     n_consumers = 1000
     n_chars = 2
@@ -60,7 +64,6 @@ if __name__ == "__main__":
     axs[3].set_title("Mean Markups")
 
     fig.tight_layout()
-
     fig.savefig("plots/diff_firms.png")
 
 
