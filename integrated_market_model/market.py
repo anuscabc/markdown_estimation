@@ -18,7 +18,7 @@ class IntegratedMarketModel:
             beta2:float=-0.3,
             beta3:float=-0.3,
             mu:float=0.5, 
-            omega:float=0.2,
+            sigma:float=0.2,
             x1_min:float=3.,
             x1_max:float=6.,
             x2_min:float=3.,
@@ -50,7 +50,7 @@ class IntegratedMarketModel:
         self.beta2 = beta2
         self.beta3 = beta3
         self.mu = mu
-        self.omega = omega
+        self.sigma = sigma
 
         # parameters for the characterisitcs 
         self.x1_min = x1_min
@@ -202,13 +202,13 @@ class IntegratedMarketModel:
 
 
         price_r = np.reshape(price, (1, self.n_firms))
-        alpha_0 = -np.exp(self.mu + (self.omega)**2/2)
+        alpha_0 = -np.exp(self.mu + (self.sigma)**2/2)
 
         beta = np.array([self.beta1, self.beta2, self.beta3])
         mean_indirect_utility = self.produc_chars@beta + alpha_0*price
         mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
 
-        alpha_i = np.reshape((-(np.exp(self.mu + self.omega*v_p))+np.exp(self.mu + (self.omega)**2/2)), (self.n_consumers, 1))
+        alpha_i = np.reshape((-(np.exp(self.mu + self.sigma*v_p))+np.exp(self.mu + (self.sigma)**2/2)), (self.n_consumers, 1))
         random_coeff = np.ravel((alpha_i*price_r).T)
 
         u = mean_indirect_utlity_for_utility + random_coeff + e
@@ -246,7 +246,7 @@ class IntegratedMarketModel:
 
 
     #     price_r = np.reshape(price, (1, self.n_firms))
-    #     alpha_i = np.reshape((self.omega*v_p), (self.n_consumers, 1))
+    #     alpha_i = np.reshape((self.sigma*v_p), (self.n_consumers, 1))
     #     random_coeff = np.ravel((alpha_i@price_r).T)
 
     #     u = mean_indirect_utility_for_utility + random_coeff + e
@@ -276,9 +276,9 @@ class IntegratedMarketModel:
         """
         J = np.zeros((self.n_firms, self.n_firms))
         
-        # alphas = self.mu + self.omega*v_p
+        # alphas = self.mu + self.sigma*v_p
 
-        alphas = -np.exp(self.mu + self.omega*v_p)
+        alphas = -np.exp(self.mu + self.sigma*v_p)
         for i in range(J.shape[0]):
             p1 = all_probs[i, :]
             for j in range(J.shape[1]):
@@ -345,7 +345,7 @@ class IntegratedMarketModel:
         investments = np.zeros((self.n_firms, self.T))
 
         # Getting the first period initialization
-        # There needs to be some sort of initialization for omega and capital 
+        # There needs to be some sort of initialization for sigma and capital 
         productivity_shocks[:,0] = np.random.normal(self.mean_productivity, self.std_productivity, self.n_firms)
         capital[:, 0] = np.random.uniform(self.min_capital, self.max_capital, self.n_firms)
 
@@ -472,13 +472,13 @@ class IntegratedMarketModel:
 
         #Get the alphas in 3 ways to see if they all have the same distribution 
         # The original way 
-        alpha_i_1 = -np.exp(self.mu + self.omega*self.v_p)
+        alpha_i_1 = -np.exp(self.mu + self.sigma*self.v_p)
         # The extended way 
-        alpha_i_2 = -np.exp(self.mu + (self.omega**2)/2) + (-np.exp(self.mu + self.omega*self.v_p) + 
-                                                            np.exp(self.mu + (self.omega**2)/2))
+        alpha_i_2 = -np.exp(self.mu + (self.sigma**2)/2) + (-np.exp(self.mu + self.sigma*self.v_p) + 
+                                                            np.exp(self.mu + (self.sigma**2)/2))
         # The different way where we explicitly caluclate the variance in the log-normal distribution 
-        alpha_0 = -np.exp(self.mu + (self.omega**2)/2)
-        sigma_0 = np.sqrt((np.exp(self.omega ** 2) - 1) * np.exp(2 * self.mu + self.omega ** 2))
+        alpha_0 = -np.exp(self.mu + (self.sigma**2)/2)
+        sigma_0 = np.sqrt((np.exp(self.sigma ** 2) - 1) * np.exp(2 * self.mu + self.sigma ** 2))
 
         return alpha_i_1, alpha_i_2, alpha_0, sigma_0
 
