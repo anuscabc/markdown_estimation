@@ -141,6 +141,7 @@ class IntegratedMarketModel:
 
         market_shares, all_probs, mean_indirect_utility = self.compute_share(v_p, price, e)
         cost = self.compute_marginal_cost(market_shares, t)
+        # cost = np.ones(self.n_firms)
         Jacobian = self.construct_Jacobian(all_probs, v_p)
         profit_FOC = np.matmul(np.transpose(Jacobian), (price - cost)) + market_shares
         # profit_FOC = Jacobian@(price - cost) + market_shares
@@ -162,6 +163,8 @@ class IntegratedMarketModel:
         MC = (self.wage*(1/self.theta_L))*((self.n_consumers * market_shares)/(np.exp(self.theta_0 + self.productivity_shocks[:,t])*
               self.capital[:,t]**self.theta_K))**((1/self.theta_L)-1) *(1/(np.exp(self.theta_0 + self.productivity_shocks[:,t])*
               self.capital[:,t]**self.theta_K))
+        
+        # MC = np.ones(self.n_firms)
         return MC
 
     def compute_profit(self, t):

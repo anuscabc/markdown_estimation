@@ -4,7 +4,7 @@ clear all
 //BLP estimation with the generated data 
 global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data"
 cd $path
-import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_2.csv"
+import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_1.csv"
 describe
 
 //
