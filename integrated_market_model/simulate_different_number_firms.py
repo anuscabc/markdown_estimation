@@ -35,13 +35,14 @@ def single_simulation(n_firms, n_consumers, n_chars, T, s, x1_min, x2_min):
     flatten_prices = model.prices.T.flatten()
     flatten_cost = model.costs.T.flatten()
     flatten_markups = model.markups.flatten()
-    cum_market_share = 1 -  np.sum(model.market_shares, axis=0)
-    return flatten_prices.mean(), cum_market_share, flatten_cost.mean(), flatten_markups.mean()
+    outside_cum_market_share = 1 -  np.sum(model.market_shares, axis=0)
+    # prep = outside_cum_market_share.flatten()
+    return flatten_prices.mean(), outside_cum_market_share, flatten_cost.mean(), flatten_markups.mean()
 
 
 def make_graphs_diff_products(mean_price_car, mean_share_car, mean_cost_car, mean_markups_car):
     fig, axs = plt.subplots(4, figsize=(6, 6))
-    fig.suptitle(f'Market Equilibium Over Less Differentiation in \n Product Characteristics and Marginal Constant Cost')
+    fig.suptitle(f'Market Equilibium Over Less Differentiation in \n Product Characteristics')
     axs[0].plot(mean_price_car, color='#FFA3B9')
     axs[0].set_title("Price")
     axs[1].plot(mean_share_car, color='#FFC580')
@@ -57,7 +58,7 @@ def make_graphs_diff_products(mean_price_car, mean_share_car, mean_cost_car, mea
 
 def make_graphs_diff_firms(mean_price_firm, mean_share_firm, mean_cost_firm, mean_markups_firm):
     fig, axs = plt.subplots(4, figsize=(6, 6))
-    fig.suptitle(f'Market Equilibium Over Different Number of Firms and Constant Marginal Cost')
+    fig.suptitle(f'Market Equilibium Over Different Number of Firms')
     axs[0].plot(mean_price_firm, color='#FFA3B9')
     axs[0].set_title("Price")
     axs[1].plot(mean_share_firm, color='#FFC580')

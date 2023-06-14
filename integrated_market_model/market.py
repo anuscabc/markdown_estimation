@@ -31,8 +31,8 @@ class IntegratedMarketModel:
             min_capital:float=10.,
             max_capital:float=10.,
             theta_0:float=1.,
-            theta_L:float=0.3,
-            theta_K:float=0.7,
+            theta_L:float=0.6,
+            theta_K:float=0.4,
             wage:float=15,
             seed:int=100
         ):
