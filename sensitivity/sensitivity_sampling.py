@@ -91,7 +91,7 @@ def generate_samples(sampling_method:str, n_firms:int, n_consumers:int, n_chars:
 if __name__ == "__main__":
 
     n_firms = 10
-    n_consumers = 500
+    n_consumers = 10000
     n_chars = 2
     T = 1
     seed = 1234
