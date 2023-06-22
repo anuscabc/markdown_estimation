@@ -21,6 +21,6 @@ if __name__ == "__main__":
     n_chars = 2
     T = 100
     # s = 100
-    for s in range(1, 101, 1):
+    for s in range(101, 1001, 1):
         single_simulation(n_firms, n_consumers, n_chars, T, s)
 
