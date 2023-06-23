@@ -259,7 +259,7 @@ class IntegratedMarketModel:
 
     #     return market_shares, all_probs, mean_indirect_utility
 
-    def construct_Jacobian(self, all_probs, v_p):
+    def construct_Jacobian(self, all_probs, v_p): 
         """ Formulas for the matrix of first order conditions of market
         shares with respect to prices 
 
@@ -478,6 +478,8 @@ class IntegratedMarketModel:
                                                             np.exp(self.mu + (self.sigma**2)/2))
         # The different way where we explicitly caluclate the variance in the log-normal distribution 
         alpha_0 = -np.exp(self.mu + (self.sigma**2)/2)
+
+        # The equation gives the stnadard deviation already not the variance 
         sigma_0 = np.sqrt((np.exp(self.sigma ** 2) - 1) * np.exp(2 * self.mu + self.sigma ** 2))
 
         return alpha_i_1, alpha_i_2, alpha_0, sigma_0

@@ -4,7 +4,7 @@ clear all
 
 
 
-foreach i of numlist 1/99{
+foreach i of numlist 99/390{
 	
 //BLP estimation with the generated data 
 global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data"
