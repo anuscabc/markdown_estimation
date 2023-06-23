@@ -2,7 +2,21 @@ cls
 clear all 
 
 
-import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_4.csv"
+foreach i of numlist 1/1000{
+	
+//BLP estimation with the generated data 
+global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data"
+cd $path
+
+import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_`i'.csv"
+
+
+drop if shares<0.00001
+drop if shares == 1
+drop if shares > 0.99
+gen market_size = 10000
+
+
 
 
 drop if shares<0.00001
@@ -29,17 +43,21 @@ sort firm_ids market_ids
 // USE THE OLS ESITMATION PROCEDURE 
 reg lny lnl lnk
 estimates store e1
+mat try_ols = r(table)
+gen bl_ols = try_ols[1, 1]
+gen bk_ols = try_ols[1, 2]
 
 
 // The within estimator
 xtreg lny lnl lnk
-estimates store e2
+mat try_xtreg= r(table)
+gen bl_xtreg = try_xtreg[1, 1]
+gen bk_xtreb = try_xtreg[1, 2]
 
 
 // The ACF cause i do not have firm exist and dropout as predictivitlity 
-acfest lny, free(lnl) state(lnk) proxy(lni) i(firm_ids) t(market_ids) 
-predict omega_hat, omega 
-histogram omega_hat
+acfest lny, free(lnl) state(lnk) proxy(lni) i(firm_ids) t(market_ids) nodum invest
+
 
 
 
@@ -49,23 +67,10 @@ histogram omega_hat
 // Step I - regress lny on variable inputs and
 // polynomial in i, k
 regress lny lnl lni lnk lninvlnkop lninvsq lnkopsq lninvcube lnkopcube 
-
-predict double lny_hat if e(sample), xb
 scalar b_lnl = _b[lnl]
 
-/// Step III -- Nonlinear regression of y - lnl*b_lnl - lnm*b_lnm// on age, capital, and the polynomial to control for selection
 
-// Output minus the contributions of the variable inputs
-generate double lhs = lny - lnl*b_lnl
+// To get the capital coefficients even if not needed on this case 
 
 
-
-
-// Finally, fit the linear model (in the case of no firm exit)
-nl (lhs = b0 + bklnk+ )
-
-
-
-
-
-
+}
