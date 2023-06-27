@@ -4,7 +4,7 @@ clear all
 
 
 
-foreach i of numlist 99/390{
+foreach i of numlist 661/1000{
 	
 //BLP estimation with the generated data 
 global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data"
@@ -15,6 +15,7 @@ import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market
 
 drop if shares<0.00001
 drop if shares == 1
+drop if shares > 0.99
 gen market_size = 10000
 
 bys market_id: gen shares1 = e_quantity/market_size 
