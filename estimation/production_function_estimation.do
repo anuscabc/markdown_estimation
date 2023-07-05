@@ -40,7 +40,6 @@ gen bk_ols = try_ols[1, 2]
 
 
 xtset firm_ids market_ids
-sort firm_ids market_ids
 // The within estimator
 qui xtreg lny lnl lnk
 mat try_xtreg= r(table)
