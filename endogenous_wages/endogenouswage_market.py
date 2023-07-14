@@ -35,7 +35,6 @@ class EndogenousWageMarketModel:
             theta_L:float=0.6,
             theta_K:float=0.4,
             labor_elasticity = 0.01,
-            # wage:float=15,
             seed:int=100
         ):
 
@@ -71,7 +70,6 @@ class EndogenousWageMarketModel:
         self.theta_0 = theta_0
         self.theta_L = theta_L
         self.theta_K = theta_K
-        # self.wage = wage
         
         # This is the new variable for the labor elasticity 
         self.labor_elasticity = labor_elasticity
@@ -262,9 +260,6 @@ class EndogenousWageMarketModel:
         across correctly 
         """
         J = np.zeros((self.n_firms, self.n_firms))
-        
-        # alphas = self.mu + self.sigma*v_p
-
         alphas = -np.exp(self.mu + self.sigma*v_p)
         for i in range(J.shape[0]):
             p1 = all_probs[i, :]
