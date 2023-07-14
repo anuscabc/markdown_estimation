@@ -483,10 +483,8 @@ class IntegratedMarketModel:
         sigma_0 = np.sqrt((np.exp(self.sigma ** 2) - 1) * np.exp(2 * self.mu + self.sigma ** 2))
 
         return alpha_i_1, alpha_i_2, alpha_0, sigma_0
-
-
-
-
+    
+    
 
     def __str__(self) -> str:
         return f"Market with {self.n_firms} firms and {self.n_consumers} consumers."
