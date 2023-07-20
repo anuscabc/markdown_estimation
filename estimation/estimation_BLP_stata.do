@@ -4,13 +4,13 @@ clear all
 
 
 
-foreach i of numlist 1/1000{
+foreach i of numlist 1/15{
 	
 //BLP estimation with the generated data 
-global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data"
+global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data/data_endogenouswage"
 cd $path
 
-import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_5.csv"
+import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/data_endogenouswage/market_endogenouswage_`i'.csv"
 
 
 drop if shares<0.00001
@@ -74,7 +74,7 @@ gen b1_rcl = try2[1, 5]
 keep a_* b1_* b2_* b3_* sigma_*
 drop if _n>1
 
-export delimited using "values_estimation_blp_secondtry_`i'.csv", replace 
+export delimited using "values_estimation_blp_`i'.csv", replace 
 clear all
 
 }

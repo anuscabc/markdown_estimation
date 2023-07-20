@@ -2,13 +2,13 @@ cls
 clear all 
 
 
-foreach i of numlist 1/1000{
+foreach i of numlist 1/15{
 	
 //BLP estimation with the generated data 
-global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data"
+global path "/Users/popovici/Desktop/Thesis/markdown_estimation/data/data_endogenouswage"
 cd $path
 
-import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/market_integrates_`i'.csv"
+import delimited "/Users/popovici/Desktop/Thesis/markdown_estimation/data/data_endogenouswage/market_endogenouswage_`i'.csv"
 
 
 drop if shares<0.00001
