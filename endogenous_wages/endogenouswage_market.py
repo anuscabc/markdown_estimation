@@ -20,10 +20,10 @@ class EndogenousWageMarketModel:
             beta3:float=-0.3,
             mu:float=0.5, 
             sigma:float=0.2,
-            x1_min:float=1.,
-            x1_max:float=6.,
-            x2_min:float=1.,
-            x2_max:float=6.,
+            x1_min:float=2.,
+            x1_max:float=4.,
+            x2_min:float=2.,
+            x2_max:float=4.,
             rho:float=0.7,
             tau:float=0.05,
             gamma:float=0.1, 
@@ -34,7 +34,7 @@ class EndogenousWageMarketModel:
             theta_0:float=1.,
             theta_L:float=0.6,
             theta_K:float=0.4,
-            labor_elasticity = 0.01,
+            labor_elasticity = 0.7,
             seed:int=100
         ):
 
@@ -120,7 +120,7 @@ class EndogenousWageMarketModel:
             market_shares, probabilities, mean_indirect_util = self.compute_share(v_p_r, self.prices[:,t], e)
             self.mean_indirect_utilities[:,t] = mean_indirect_util
             self.market_shares[:,t] = market_shares
-            self.wages[:, t] = self.compute_wage(market_shares, self.prices[:,t], t)
+            self.wages[:, t] = self.compute_wage(market_shares, t)
             self.costs[:,t] = self.compute_marginal_cost(market_shares, t, self.wages[:,t])
 
             # Compute profits and markups for optimal prices
@@ -145,7 +145,7 @@ class EndogenousWageMarketModel:
         """
 
         market_shares, all_probs, mean_indirect_utility = self.compute_share(v_p, price, e)
-        wage = self.compute_wage(market_shares, price, t)
+        wage = self.compute_wage(market_shares, t)
         cost = self.compute_marginal_cost(market_shares, t, wage)
         Jacobian = self.construct_Jacobian(all_probs, v_p)
         profit_FOC = np.matmul(np.transpose(Jacobian), (price - cost)) + market_shares
@@ -171,7 +171,7 @@ class EndogenousWageMarketModel:
         # MC = np.ones(self.n_firms)
         return MC
     
-    def compute_wage(self, market_shares, price, t): 
+    def compute_wage(self, market_shares, t): 
         """_summary_
 
         Args:
@@ -182,10 +182,11 @@ class EndogenousWageMarketModel:
         Returns:
             _type_: _description_
         """
-        derivative_revenue = (price*self.n_consumers*market_shares)*(
-            (((self.n_consumers*market_shares)**(self.theta_L-1))*self.capital[:,t]**self.theta_K
-             *np.exp(self.theta_0 + self.productivity_shocks[:,t])))
-        wage = ((1/self.labor_elasticity)+1)/(derivative_revenue)
+
+
+        wage = self.labor_elasticity*((self.n_consumers*market_shares)/(self.capital[:,t]**self.theta_K*
+                                                              np.exp(self.theta_0 + self.productivity_shocks[:,t])
+                                                              ))**(1/self.theta_L)
 
         return wage
 
