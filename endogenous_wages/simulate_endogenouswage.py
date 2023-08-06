@@ -18,7 +18,7 @@ if __name__ == "__main__":
     n_consumers = 10000
     n_chars = 2
     T = 100
-    for s in range(1, 10, 1):
+    for s in range(4, 5, 1):
         single_simulation(n_firms, n_consumers, n_chars, T, s)
 
 

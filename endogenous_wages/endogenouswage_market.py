@@ -230,7 +230,7 @@ class EndogenousWageMarketModel:
         alpha_0 = -np.exp(self.mu + (self.sigma)**2/2)
 
         beta = np.array([self.beta1, self.beta2, self.beta3])
-        mean_indirect_utility = self.produc_chars@beta + alpha_0*price
+        mean_indirect_utility = self.produc_chars@beta + alpha_0*(price)
         mean_indirect_utlity_for_utility = np.repeat(mean_indirect_utility, self.n_consumers, axis=0)
 
         alpha_i = np.reshape((-(np.exp(self.mu + self.sigma*v_p))+np.exp(self.mu + (self.sigma)**2/2)), (self.n_consumers, 1))
